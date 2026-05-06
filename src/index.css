@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+    --font-sans: "Quicksand", sans-serif;
+    --font-handwritten: "Caveat", cursive;
+
+    --color-cream: #FFFBF5;
+
+    --color-gold-100: #FFF9C4;
+    --color-gold-400: #FCD34D;
+    --color-gold-500: #F59E0B;
+
+    --color-pink-50: #FDF2F8;
+    --color-pink-100: #FBCFE8;
+    --color-pink-200: #F9A8D4;
+    --color-pink-300: #F472B6;
+    --color-pink-400: #EC4899;
+    --color-pink-500: #DB2777;
+    --color-pink-600: #BE185D;
+
+    --radius-4xl: 2rem;
+
+    --shadow-soft: 0 4px 20px rgba(236, 72, 153, 0.15);
+    --shadow-glow: 0 0 15px rgba(236, 72, 153, 0.3);
+}
+
+@layer base {
+    body {
+        @apply bg-cream font-sans text-gray-800 antialiased overflow-x-hidden;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-bold text-pink-500;
+    }
+}
+
+@layer utilities {
+    .text-glow {
+        text-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+    }
+
+    .glass-card {
+        @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-soft;
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+
+        100% {
+            transform: translateY(0px);
+        }
+    }
+}
