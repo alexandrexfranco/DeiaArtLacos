@@ -46,37 +46,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (_event, session) => {
-                console.log('🔐 Auth: Evento recebido:', _event);
-                
                 try {
                     if (session?.user) {
-                        console.log('🔐 Auth: Usuário logado encontrado:', session.user.email);
-                        console.log('🔗 Supabase Client Host:', (supabase as any).supabaseUrl);
-                        
-                        const fetchProfileData = async () => {
-                            console.log('🚀 Disparando consulta ao Supabase para UID:', session.user.id);
-                            return await supabase
-                                .from('users')
-                                .select('*')
-                                .eq('uid', session.user.id)
-                                .single();
-                        };
+                        const { data: profile, error } = await supabase
+                            .from('users')
+                            .select('*')
+                            .eq('uid', session.user.id)
+                            .single();
 
-                        const response = await fetchProfileData();
-                        console.log('📡 Resposta recebida do Supabase:', response);
-                        
-                        const { data: profile, error } = response;
-
-                        if (error && error.code !== 'PGRST116') {
-                            console.error('❌ Auth: Erro retornado pelo Supabase:', error);
-                            throw error;
-                        }
+                        if (error && error.code !== 'PGRST116') throw error;
 
                         if (profile) {
-                            console.log('👤 Perfil carregado com sucesso:', profile);
                             setUser(profile as any);
                         } else {
-                            console.log('❓ Perfil não encontrado, criando um novo...');
                             const isOwner = session.user.email?.toLowerCase() === OWNER_EMAIL;
                             const newProfile = {
                                 uid: session.user.id,
@@ -86,23 +68,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                             };
                             
                             const { error: insertError } = await supabase.from('users').insert(newProfile);
-                            if (insertError) {
-                                console.error('❌ Auth: Erro ao criar novo perfil:', insertError);
-                                throw insertError;
-                            }
+                            if (insertError) throw insertError;
                             
                             setUser(newProfile as any);
                         }
                     } else {
-                        console.log('🔐 Auth: Nenhum usuário logado');
                         setUser(null);
                     }
                 } catch (err) {
-                    console.error('🔥 Erro Crítico na inicialização:', err);
-                    
-                    // Fallback para o dono (alexandrefranco.com@gmail.com)
+                    console.error('Auth Initialization Error:', err);
                     if (session?.user?.email?.toLowerCase() === OWNER_EMAIL) {
-                        console.log('🔐 Auth: Modo recuperação: Forçando Admin por e-mail');
                         setUser({
                             uid: session.user.id,
                             email: session.user.email || '',
