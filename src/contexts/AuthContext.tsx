@@ -71,6 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                                 .single();
                         };
 
+                        console.log('🔗 Supabase Client Host:', (supabase as any).supabaseUrl);
                         console.log('🔐 Auth: Buscando perfil no banco...');
                         const { data: profile, error } = await fetchProfileData();
 
