@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { getSettings } from '@/lib/sheets';
+import { supabase } from '@/lib/supabase';
 
 export function HeroSection() {
     const [bannerUrl, setBannerUrl] = useState<string | null>(null);
@@ -10,9 +10,9 @@ export function HeroSection() {
     useEffect(() => {
         const fetchBanner = async () => {
             try {
-                const settings = await getSettings();
-                if (settings.heroBanner) {
-                    setBannerUrl(settings.heroBanner);
+                const { data } = await supabase.from('settings').select('value').eq('key', 'heroBanner').maybeSingle();
+                if (data?.value) {
+                    setBannerUrl(data.value);
                 }
             } catch (error) {
                 console.error("Error loading banner:", error);

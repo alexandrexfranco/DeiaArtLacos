@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useProducts, Product } from '@/contexts/ProductContext';
 import { Plus, Edit2, Trash2, X, Upload, Save } from 'lucide-react';
-import { addProduct, updateProduct, deleteProduct, uploadImage } from '@/lib/sheets';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export default function ProductManager() {
@@ -20,6 +20,7 @@ export default function ProductManager() {
         size: 'M',
         type: 'Laço',
         image: '',
+        images: [],
         isNew: false,
         isBestSeller: false,
         likes: 0
@@ -39,6 +40,7 @@ export default function ProductManager() {
                 size: 'M',
                 type: 'Laço',
                 image: '',
+                images: [],
                 isNew: false,
                 isBestSeller: false,
                 likes: 0
@@ -53,9 +55,17 @@ export default function ProductManager() {
 
         setIsUploading(true);
         try {
-            const url = await uploadImage(file);
-            setFormData(prev => ({ ...prev, image: url }));
-            toast.success('Imagem enviada para o Google Drive com sucesso!');
+            const cleanName = file.name
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9.\-_]/g, '_');
+            const fileName = `${Date.now()}-${cleanName}`;
+            const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
+            if (uploadError) throw uploadError;
+            
+            const { data } = supabase.storage.from('products').getPublicUrl(fileName);
+            setFormData(prev => ({ ...prev, image: data.publicUrl }));
+            toast.success('Imagem enviada para o Supabase com sucesso!');
         } catch (error) {
             console.error('Error uploading image:', error);
             toast.error('Erro ao fazer upload da imagem.');
@@ -64,9 +74,51 @@ export default function ProductManager() {
         }
     };
 
+    const handleExtraImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+
+        setIsUploading(true);
+        try {
+            const newImageUrls: string[] = [];
+            for (const file of files) {
+                const cleanName = file.name
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-zA-Z0-9.\-_]/g, '_');
+                const fileName = `${Date.now()}-${cleanName}`;
+                const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
+                if (uploadError) throw uploadError;
+                
+                const { data } = supabase.storage.from('products').getPublicUrl(fileName);
+                newImageUrls.push(data.publicUrl);
+            }
+            
+            setFormData(prev => ({ 
+                ...prev, 
+                images: [...(prev.images || []), ...newImageUrls] 
+            }));
+            toast.success(`${files.length} imagem(ns) adicionada(s) à galeria!`);
+        } catch (error) {
+            console.error('Error uploading extra images:', error);
+            toast.error('Erro ao fazer upload das imagens extras.');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleRemoveExtraImage = (indexToRemove: number) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images?.filter((_, index) => index !== indexToRemove)
+        }));
+    };
+
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        console.log('--- Iniciando salvamento do produto ---');
+        console.log('Dados do formulário:', formData);
 
         try {
             const priceNumber = Number(
@@ -86,27 +138,36 @@ export default function ProductManager() {
                 size: formData.size || 'M',
                 type: formData.type || 'Bico de Pato',
                 image: formData.image || '',
+                images: formData.images || [],
                 likes: formData.likes || 0,
                 isNew: formData.isNew || false,
                 isBestSeller: formData.isBestSeller || false,
             };
 
+            console.log('Payload para o Supabase:', productData);
+
             if (editingProduct) {
-                // Update existing product in Google Sheets
-                await updateProduct({ id: editingProduct.id, ...productData });
+                console.log('Atualizando produto existente:', editingProduct.id);
+                const { data, error } = await supabase.from('products').update(productData).eq('id', editingProduct.id).select();
+                console.log('Resposta Update:', { data, error });
+                if (error) throw error;
                 toast.success('Produto atualizado com sucesso!');
             } else {
-                // Create new product in Google Sheets
-                const result = await addProduct(productData);
-                toast.success(`Produto criado com sucesso! ID: ${result.id}`);
+                console.log('Criando novo produto...');
+                const { data, error } = await supabase.from('products').insert(productData).select();
+                console.log('Resposta Insert:', { data, error });
+                if (error) throw error;
+                toast.success('Produto criado com sucesso!');
             }
 
-            // Refresh product list from Sheets
+            console.log('Atualizando lista de produtos...');
             await refreshProducts();
             setIsModalOpen(false);
+            console.log('--- Salvamento concluído ---');
         } catch (error: any) {
-            console.error('SAVE ERROR:', error);
-            toast.error(`Erro ao salvar: ${error.message || 'Tente novamente'}`);
+            console.error('SAVE ERROR FULL:', error);
+            const errorMessage = error?.message || error?.details || error?.hint || 'Erro desconhecido';
+            toast.error(`Erro ao salvar: ${errorMessage}`);
         } finally {
             setIsLoading(false);
         }
@@ -115,7 +176,8 @@ export default function ProductManager() {
     const handleDelete = async (id: string) => {
         if (!confirm('Tem certeza que deseja excluir este produto?')) return;
         try {
-            await deleteProduct(id);
+            const { error } = await supabase.from('products').delete().eq('id', id);
+            if (error) throw error;
             toast.success('Produto excluído.');
             await refreshProducts();
         } catch (error) {
@@ -240,7 +302,38 @@ export default function ProductManager() {
                                             Alterar
                                         </div>
                                     </div>
-                                    <p className="text-xs text-gray-400 mt-1">Imagem salva no Google Drive.</p>
+                                    <p className="text-xs text-gray-400 mt-1">Imagem salva no Supabase.</p>
+
+                                    {/* Extra Images Gallery */}
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Galeria Adicional (Opcional)</label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {formData.images?.map((img, idx) => (
+                                                <div key={idx} className="relative aspect-square rounded-xl overflow-hidden group">
+                                                    <img src={img} alt={`Extra ${idx}`} className="w-full h-full object-cover" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveExtraImage(idx)}
+                                                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            
+                                            <div className="aspect-square bg-pink-50 rounded-xl border-2 border-dashed border-pink-200 flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer hover:border-pink-300 transition-colors">
+                                                <input
+                                                    type="file"
+                                                    multiple
+                                                    onChange={handleExtraImageUpload}
+                                                    className="absolute inset-0 opacity-0 cursor-pointer z-20"
+                                                    accept="image/*"
+                                                    disabled={isUploading}
+                                                />
+                                                <Plus size={24} className="text-pink-400" />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-4">

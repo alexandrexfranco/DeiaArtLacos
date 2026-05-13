@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Users, Shield, User as UserIcon, Mail, Calendar, Edit2, Save, X } from 'lucide-react';
-import { getUsers, updateUserRole } from '@/lib/sheets';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface UserData {
     uid: string;
     email: string;
-    displayName: string | null;
+    display_name: string | null;
     role: 'admin' | 'customer';
-    createdAt: string;
+    created_at: string;
 }
 
 export default function UserManager() {
@@ -24,10 +24,9 @@ export default function UserManager() {
     const fetchUsers = async () => {
         setIsLoading(true);
         try {
-            const usersData = await getUsers();
-            // Sort by creation date (newest first)
-            usersData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            setUsers(usersData);
+            const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
+            setUsers(data as UserData[]);
         } catch (error) {
             console.error('Error fetching users:', error);
             toast.error('Erro ao carregar usuários');
@@ -38,7 +37,8 @@ export default function UserManager() {
 
     const handleRoleChange = async (userId: string) => {
         try {
-            await updateUserRole(userId, editingRole);
+            const { error } = await supabase.from('users').update({ role: editingRole }).eq('uid', userId);
+            if (error) throw error;
 
             // Update local state
             setUsers(users.map(u =>
@@ -190,7 +190,7 @@ export default function UserManager() {
             <div className="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-4">
                 <p className="text-sm text-blue-800">
                     <strong>💡 Dica:</strong> Administradores têm acesso total ao painel. Clientes só podem fazer compras e ver seus pedidos.
-                    Os dados são armazenados no Google Sheets.
+                    Os dados são armazenados no Supabase.
                 </p>
             </div>
         </div>

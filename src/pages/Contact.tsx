@@ -78,7 +78,7 @@ export default function Contact() {
                             </div>
                             <h3 className="text-xl font-bold text-gray-800 mb-2">Instagram</h3>
                             <p className="text-gray-500 mb-4">Siga nosso dia a dia e novidades.</p>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-purple-500 font-bold hover:text-purple-600 flex items-center gap-2">
+                            <a href="https://www.instagram.com/deiaartlacos" target="_blank" rel="noopener noreferrer" className="text-purple-500 font-bold hover:text-purple-600 flex items-center gap-2">
                                 @deiaartlacos <Send size={16} />
                             </a>
                         </div>

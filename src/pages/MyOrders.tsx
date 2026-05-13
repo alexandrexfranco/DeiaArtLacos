@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Package, ShoppingBag, Calendar, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getOrders, SheetOrder } from '@/lib/sheets';
+import { supabase } from '@/lib/supabase';
 
 interface OrderItem {
     id: string;
@@ -23,7 +22,7 @@ interface Order {
 }
 
 export default function MyOrders() {
-    const [orders, setOrders] = useState<SheetOrder[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
     const { user } = useAuth();
 
     useEffect(() => {
@@ -34,8 +33,18 @@ export default function MyOrders() {
 
         const fetchOrders = async () => {
             try {
-                const ordersList = await getOrders(user.uid);
-                setOrders(ordersList);
+                const { data, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .eq('user_id', user.uid)
+                    .order('date', { ascending: false });
+                
+                if (error) throw error;
+                
+                setOrders(data.map(order => ({
+                    ...order,
+                    items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items
+                })) as Order[]);
             } catch (error) {
                 console.error('Error fetching orders:', error);
                 setOrders([]);

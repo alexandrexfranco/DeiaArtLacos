@@ -9,7 +9,7 @@ const faqs = [
     },
     {
         question: "Qual o prazo de entrega?",
-        answer: "O prazo de entrega varia de acordo com a sua região e a modalidade de envio escolhida (Sedex ou PAC). O prazo de produção é de 3 a 5 dias úteis, pois todas as peças são feitas à mão."
+        answer: "O prazo de entrega varia de acordo com a sua região e a modalidade de envio escolhida (Sedex ou PAC). O frete é por conta do cliente! O prazo de produção é de 3 a 5 dias úteis, pois todas as peças são feitas à mão."
     },
     {
         question: "Os laços machucam a cabeça?",
@@ -21,7 +21,7 @@ const faqs = [
     },
     {
         question: "Como posso rastrear meu pedido?",
-        answer: "Assim que seu pedido for postado, você receberá um código de rastreio por e-mail para acompanhar a entrega no site dos Correios."
+        answer: "Assim que seu pedido for postado, você receberá um código de rastreio por e-mail para acompanhar a entrega no site dos Correios. Lembrando que o frete é por conta do cliente!"
     }
 ];
 

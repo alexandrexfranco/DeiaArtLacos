@@ -1,12 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProducts } from '@/contexts/ProductContext';
-import { Package, Heart, DollarSign, TrendingUp, Database, RefreshCw } from 'lucide-react';
-import { addProduct } from '@/lib/sheets';
+import { Package, Heart, DollarSign, TrendingUp, Database, RefreshCw, MessageSquare } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export default function Dashboard() {
     const { products, isLoading, refreshProducts } = useProducts();
     const [isSeeding, setIsSeeding] = useState(false);
+    const [pendingReviews, setPendingReviews] = useState(0);
+
+    useEffect(() => {
+        fetchPendingReviews();
+    }, []);
+
+    const fetchPendingReviews = async () => {
+        try {
+            const { count, error } = await supabase
+                .from('reviews')
+                .select('*', { count: 'exact', head: true })
+                .eq('is_approved', false);
+
+            if (error) throw error;
+            setPendingReviews(count || 0);
+        } catch (error) {
+            console.error('Error fetching pending reviews:', error);
+        }
+    };
 
     const seedDatabase = async () => {
         if (!confirm('Isso vai adicionar produtos de exemplo ao Google Sheets. Continuar?')) return;
@@ -76,11 +95,10 @@ export default function Dashboard() {
                 }
             ];
 
-            for (const product of sampleProducts) {
-                await addProduct(product);
-            }
+            const { error } = await supabase.from('products').insert(sampleProducts);
+            if (error) throw error;
 
-            toast.success('Produtos de exemplo adicionados ao Google Sheets!');
+            toast.success('Produtos de exemplo adicionados ao Supabase!');
             await refreshProducts();
         } catch (error) {
             console.error('Erro ao popular banco:', error);
@@ -116,6 +134,13 @@ export default function Dashboard() {
             ),
             icon: DollarSign,
             color: 'bg-purple-500'
+        },
+        {
+            label: 'Avaliações Pendentes',
+            value: pendingReviews,
+            icon: MessageSquare,
+            color: pendingReviews > 0 ? 'bg-amber-500' : 'bg-gray-400',
+            isAlert: pendingReviews > 0
         }
     ];
 
@@ -127,10 +152,13 @@ export default function Dashboard() {
                 <div className="flex gap-3">
                     {/* Refresh button */}
                     <button
-                        onClick={refreshProducts}
+                        onClick={() => {
+                            refreshProducts();
+                            fetchPendingReviews();
+                        }}
                         disabled={isLoading}
                         className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-all disabled:opacity-50"
-                        title="Recarregar dados do Google Sheets"
+                        title="Recarregar dados do Supabase"
                     >
                         <RefreshCw size={18} className={isLoading ? 'animate-spin' : ''} />
                         Atualizar
@@ -160,7 +188,7 @@ export default function Dashboard() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
@@ -180,7 +208,7 @@ export default function Dashboard() {
             {/* Google Sheets badge */}
             <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3 w-fit">
                 <span>📊</span>
-                <span>Banco de dados: <strong>Google Sheets</strong> — dados em tempo real</span>
+                <span>Banco de dados: <strong>Supabase</strong> — dados em tempo real</span>
             </div>
 
             {/* Recent Products Table Preview */}
@@ -191,7 +219,7 @@ export default function Dashboard() {
                 {isLoading ? (
                     <div className="p-12 text-center">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-pink-500 mx-auto mb-3"></div>
-                        <p className="text-gray-400">Carregando do Google Sheets...</p>
+                        <p className="text-gray-400">Carregando do Supabase...</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">

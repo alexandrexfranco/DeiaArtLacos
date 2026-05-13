@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Phone, Mail, Heart } from 'lucide-react';
+import { Instagram, MessageCircle, Heart } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 export function Footer() {
     return (
@@ -14,11 +16,13 @@ export function Footer() {
                             Transformando fitas em sonhos. Laços feitos à mão com muito amor e carinho para sua princesa.
                         </p>
                         <div className="flex gap-4">
-                            <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-400 hover:bg-pink-500 hover:text-white transition-all shadow-sm">
+                            <a 
+                                href="https://www.instagram.com/deiaartlacos" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-400 hover:bg-pink-500 hover:text-white transition-all shadow-sm"
+                            >
                                 <Instagram className="w-5 h-5" />
-                            </a>
-                            <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-pink-400 hover:bg-pink-500 hover:text-white transition-all shadow-sm">
-                                <Facebook className="w-5 h-5" />
                             </a>
                         </div>
                     </div>
@@ -43,12 +47,15 @@ export function Footer() {
                         </h4>
                         <ul className="space-y-4 text-gray-600">
                             <li className="flex items-center gap-3">
-                                <Phone className="w-5 h-5 text-pink-400" />
-                                <span>(11) 99999-9999</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <Mail className="w-5 h-5 text-pink-400" />
-                                <span>contato@deiaartlacos.com.br</span>
+                                <MessageCircle className="w-5 h-5 text-pink-400" />
+                                <a 
+                                    href="https://wa.me/5527997948142" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="hover:text-pink-500 transition-colors"
+                                >
+                                    (27) 99794-8142
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -59,15 +66,63 @@ export function Footer() {
                             <span className="w-2 h-2 rounded-full bg-pink-400" /> Novidades
                         </h4>
                         <p className="text-gray-600 mb-4 text-sm">
-                            Receba ofertas exclusivas e descontos especiais!
+                            Receba novidades e ofertas exclusivas no seu WhatsApp!
                         </p>
-                        <form className="space-y-3">
+                        <form 
+                            onSubmit={async (e) => {
+                                e.preventDefault();
+                                const form = e.target as HTMLFormElement;
+                                const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+                                const phone = (form.elements.namedItem('phone') as HTMLInputElement).value;
+                                
+                                if (!phone) return;
+
+                                try {
+                                    const { error } = await supabase.from('newsletter').insert({ name, phone });
+                                    if (error) {
+                                        if (error.code === '23505') {
+                                            toast.error('Este número já está cadastrado!');
+                                        } else {
+                                            throw error;
+                                        }
+                                    } else {
+                                        toast.success('Inscrição realizada com sucesso! 🎀');
+                                        form.reset();
+                                    }
+                                } catch (error) {
+                                    console.error('Error joining newsletter:', error);
+                                    toast.error('Erro ao realizar inscrição. Tente novamente.');
+                                }
+                            }}
+                            className="space-y-3"
+                        >
                             <input
-                                type="email"
-                                placeholder="Seu melhor e-mail"
-                                className="w-full px-4 py-3 rounded-xl border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                                type="text"
+                                name="name"
+                                required
+                                placeholder="Seu nome"
+                                className="w-full px-4 py-2 rounded-xl border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
                             />
-                            <button className="w-full bg-pink-400 text-white font-bold py-3 rounded-xl hover:bg-pink-500 transition-colors">
+                            <input
+                                type="tel"
+                                name="phone"
+                                required
+                                placeholder="(00) 00000-0000"
+                                onChange={(e) => {
+                                    const value = e.target.value.replace(/\D/g, '');
+                                    if (value.length <= 11) {
+                                        let formatted = value;
+                                        if (value.length > 2) formatted = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+                                        if (value.length > 7) formatted = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7, 11)}`;
+                                        e.target.value = formatted;
+                                    }
+                                }}
+                                className="w-full px-4 py-2 rounded-xl border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                            />
+                            <button 
+                                type="submit"
+                                className="w-full bg-pink-400 text-white font-bold py-3 rounded-xl hover:bg-pink-500 transition-colors shadow-sm"
+                            >
                                 Quero receber!
                             </button>
                         </form>

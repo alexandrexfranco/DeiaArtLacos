@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getProducts, getFavorites, addFavorite, removeFavorite, addProduct } from '@/lib/sheets';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
 
@@ -12,6 +12,7 @@ export interface Product {
     size?: string;
     type?: string;
     image: string;
+    images?: string[];
     likes: number;
     isNew?: boolean;
     isBestSeller?: boolean;
@@ -42,24 +43,22 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const { user } = useAuth();
 
-    // Favorites State — from Google Sheets per user
     const [favorites, setFavorites] = useState<string[]>([]);
 
-    // Load products from Google Sheets
     const refreshProducts = async () => {
         setIsLoading(true);
         try {
-            const sheetProducts = await getProducts();
-            const mapped: Product[] = sheetProducts.map(p => ({ ...p }));
+            const { data, error } = await supabase.from('products').select('*');
+            if (error) throw error;
+            
+            const mapped: Product[] = data || [];
             setProducts(mapped);
-            // Save to localStorage as backup
             localStorage.setItem('products_backup', JSON.stringify(mapped));
-            console.log('✅ Products loaded from Google Sheets');
+            console.log('✅ Products loaded from Supabase');
         } catch (error) {
-            console.error('❌ Google Sheets connection failed:', error);
+            console.error('❌ Supabase connection failed:', error);
             toast.warning('Modo Offline: Usando dados locais');
 
-            // Load from localStorage as fallback
             const cached = localStorage.getItem('products_backup');
             if (cached) {
                 try {
@@ -81,7 +80,6 @@ export function ProductProvider({ children }: { children: ReactNode }) {
         refreshProducts();
     }, []);
 
-    // Fetch user favorites from Google Sheets
     useEffect(() => {
         if (!user) {
             setFavorites([]);
@@ -90,8 +88,13 @@ export function ProductProvider({ children }: { children: ReactNode }) {
 
         const fetchFavorites = async () => {
             try {
-                const favIds = await getFavorites(user.uid);
-                setFavorites(favIds);
+                const { data, error } = await supabase
+                    .from('favorites')
+                    .select('product_id')
+                    .eq('user_id', user.uid);
+                
+                if (error) throw error;
+                setFavorites(data.map(f => f.product_id));
             } catch (error) {
                 console.error('Error fetching favorites:', error);
                 setFavorites([]);
@@ -117,14 +120,20 @@ export function ProductProvider({ children }: { children: ReactNode }) {
 
         try {
             if (isLiked) {
-                await removeFavorite(user.uid, id);
+                const { error } = await supabase
+                    .from('favorites')
+                    .delete()
+                    .match({ user_id: user.uid, product_id: id });
+                if (error) throw error;
                 setFavorites(prev => prev.filter(favId => favId !== id));
             } else {
-                await addFavorite(user.uid, id);
+                const { error } = await supabase
+                    .from('favorites')
+                    .insert({ user_id: user.uid, product_id: id });
+                if (error) throw error;
                 setFavorites(prev => [...prev, id]);
             }
 
-            // Optimistically update the product like count (local state only)
             setProducts(prevProducts =>
                 prevProducts.map(p =>
                     p.id === id ? { ...p, likes: p.likes + (isLiked ? -1 : 1) } : p

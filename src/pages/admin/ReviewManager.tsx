@@ -1,0 +1,201 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Star, CheckCircle, XCircle, Trash2, MessageSquare, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
+
+interface ReviewWithProduct {
+    id: string;
+    user_name: string;
+    rating: number;
+    comment: string;
+    is_approved: boolean;
+    created_at: string;
+    product_id: string;
+    products: {
+        name: string;
+    };
+}
+
+export default function ReviewManager() {
+    const [reviews, setReviews] = useState<ReviewWithProduct[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        fetchReviews();
+    }, []);
+
+    const fetchReviews = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('reviews')
+                .select(`
+                    *,
+                    products (
+                        name
+                    )
+                `)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setReviews(data || []);
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
+            toast.error('Erro ao carregar avaliações.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleToggleApproval = async (review: ReviewWithProduct) => {
+        try {
+            const { error } = await supabase
+                .from('reviews')
+                .update({ is_approved: !review.is_approved })
+                .eq('id', review.id);
+
+            if (error) throw error;
+            
+            toast.success(review.is_approved ? 'Avaliação ocultada.' : 'Avaliação aprovada!');
+            fetchReviews();
+        } catch (error) {
+            console.error('Error toggling approval:', error);
+            toast.error('Erro ao atualizar status.');
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('Tem certeza que deseja excluir permanentemente esta avaliação?')) return;
+        
+        try {
+            const { error } = await supabase
+                .from('reviews')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+            
+            toast.success('Avaliação excluída.');
+            fetchReviews();
+        } catch (error) {
+            console.error('Error deleting review:', error);
+            toast.error('Erro ao excluir avaliação.');
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-8">
+            <div className="flex justify-between items-center">
+                <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                    <MessageSquare className="text-pink-500" /> Gerenciar Avaliações
+                </h2>
+                <div className="text-sm text-gray-500">
+                    Total: {reviews.length} avaliações
+                </div>
+            </div>
+
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-bold">
+                            <tr>
+                                <th className="px-6 py-4 text-center">Status</th>
+                                <th className="px-6 py-4">Data</th>
+                                <th className="px-6 py-4">Cliente</th>
+                                <th className="px-6 py-4">Produto</th>
+                                <th className="px-6 py-4">Comentário</th>
+                                <th className="px-6 py-4">Nota</th>
+                                <th className="px-6 py-4 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {reviews.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-6 py-12 text-center text-gray-400">
+                                        Nenhuma avaliação encontrada.
+                                    </td>
+                                </tr>
+                            ) : (
+                                reviews.map((review) => (
+                                    <tr key={review.id} className={`hover:bg-gray-50 transition-colors ${!review.is_approved ? 'bg-amber-50/20' : ''}`}>
+                                        <td className="px-6 py-4 text-center">
+                                            {review.is_approved ? (
+                                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                                                    <CheckCircle size={12} /> Aprovada
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                                                    <XCircle size={12} /> Pendente
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                            {new Date(review.created_at).toLocaleDateString('pt-BR')}
+                                        </td>
+                                        <td className="px-6 py-4 font-bold text-gray-800">{review.user_name}</td>
+                                        <td className="px-6 py-4">
+                                            <Link 
+                                                to={`/produto/${review.product_id}`} 
+                                                className="text-pink-500 hover:underline flex items-center gap-1 font-medium"
+                                                target="_blank"
+                                            >
+                                                {review.products?.name} <ExternalLink size={12} />
+                                            </Link>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <p className="text-gray-600 text-sm max-w-xs truncate" title={review.comment}>
+                                                {review.comment}
+                                            </p>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex text-amber-400">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star 
+                                                        key={i} 
+                                                        size={14} 
+                                                        fill={i < review.rating ? "currentColor" : "none"} 
+                                                        className={i < review.rating ? "" : "text-gray-200"}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleToggleApproval(review)}
+                                                    className={`p-2 rounded-lg transition-colors ${
+                                                        review.is_approved 
+                                                        ? 'text-amber-500 hover:bg-amber-50' 
+                                                        : 'text-green-500 hover:bg-green-50'
+                                                    }`}
+                                                    title={review.is_approved ? 'Ocultar' : 'Aprovar'}
+                                                >
+                                                    {review.is_approved ? <XCircle size={18} /> : <CheckCircle size={18} />}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(review.id)}
+                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                    title="Excluir"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { sheetLogin, sheetRegister, sheetUpdateUser } from '@/lib/sheets';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
-// Custom user interface to replace Firebase User
 export interface AppUser {
     uid: string;
     email: string;
@@ -42,122 +41,141 @@ interface AuthProviderProps {
     children: ReactNode;
 }
 
-const STORAGE_KEY = 'deia_art_lacos_user';
 const OWNER_EMAIL = 'alexandrefranco.com@gmail.com';
 
 export function AuthProvider({ children }: AuthProviderProps) {
     const [user, setUser] = useState<AppUser | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false);
+
+    const isAdmin = user?.role === 'admin' || user?.email?.toLowerCase() === OWNER_EMAIL;
 
     useEffect(() => {
-        // Load user from localStorage on mount
-        const savedUser = localStorage.getItem(STORAGE_KEY);
-        if (savedUser) {
-            try {
-                const parsedUser = JSON.parse(savedUser) as AppUser;
-                setUser(parsedUser);
-                setIsAdmin(parsedUser.role === 'admin');
-            } catch (error) {
-                console.error('Error parsing saved user:', error);
-                localStorage.removeItem(STORAGE_KEY);
+        console.log('🌍 Supabase URL:', import.meta.env.VITE_SUPABASE_URL ? 'Configurada ✅' : 'AUSENTE ❌');
+        console.log('🔐 Auth: Inicializando monitoramento de sessão...');
+
+        // Initialize Supabase Auth Session
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            async (_event, session) => {
+                console.log('🔐 Auth: Evento recebido:', _event);
+                
+                try {
+                    if (session?.user) {
+                        console.log('🔐 Auth: Usuário logado encontrado:', session.user.email);
+                        
+                        // Timeout de 5 segundos para a consulta ao banco
+                        const fetchProfileData = async () => {
+                            return await supabase
+                                .from('users')
+                                .select('*')
+                                .eq('uid', session.user.id)
+                                .single();
+                        };
+
+                        const timeout = new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('TIMEOUT_DB')), 5000)
+                        );
+
+                        console.log('🔐 Auth: Buscando perfil no banco...');
+                        const result = await Promise.race([fetchProfileData(), timeout]) as any;
+                        const { data: profile, error } = result;
+
+                        if (error && error.code !== 'PGRST116') {
+                            console.error('❌ Auth: Erro ao buscar perfil:', error);
+                        }
+
+                        if (profile) {
+                            console.log('🔐 Auth: Perfil carregado com sucesso');
+                            setUser(profile as any);
+                        } else {
+                            console.log('🔐 Auth: Perfil não encontrado, criando um novo...');
+                            const isOwner = session.user.email?.toLowerCase() === OWNER_EMAIL;
+                            const newProfile = {
+                                uid: session.user.id,
+                                email: session.user.email || '',
+                                display_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                                role: isOwner ? 'admin' : 'customer'
+                            };
+                            await supabase.from('users').insert(newProfile);
+                            setUser(newProfile as any);
+                        }
+                    } else {
+                        console.log('🔐 Auth: Nenhum usuário logado');
+                        setUser(null);
+                    }
+                } catch (err) {
+                    console.error('❌ Auth: Erro ou Timeout na inicialização:', err);
+                    // Se for o dono, força admin e define usuário básico como fallback
+                    if (session?.user?.email?.toLowerCase() === OWNER_EMAIL) {
+                        console.log('🔐 Auth: Modo recuperação: Forçando Admin por e-mail');
+                        setUser({
+                            uid: session.user.id,
+                            email: session.user.email || '',
+                            display_name: session.user.user_metadata?.full_name || 'Admin',
+                            role: 'admin'
+                        } as any);
+                    }
+                } finally {
+                    console.log('🔐 Auth: Finalizando estado de carregamento');
+                    setLoading(false);
+                }
             }
-        }
-        setLoading(false);
+        );
+
+        return () => {
+            subscription.unsubscribe();
+        };
     }, []);
 
     const signIn = async (email: string, password: string) => {
-        try {
-            const sheetUser = await sheetLogin(email, password);
-            if (sheetUser) {
-                const isOwner = sheetUser.email.toLowerCase() === OWNER_EMAIL;
-                const appUser: AppUser = {
-                    uid: sheetUser.uid,
-                    email: sheetUser.email,
-                    displayName: sheetUser.displayName,
-                    role: isOwner ? 'admin' : sheetUser.role,
-                    whatsapp: sheetUser.whatsapp,
-                    cep: sheetUser.cep,
-                    cidade: sheetUser.cidade,
-                    endereco: sheetUser.endereco,
-                    numero: sheetUser.numero,
-                    complemento: sheetUser.complemento,
-                    estado: sheetUser.estado,
-                    photoURL: sheetUser.photoURL
-                };
-                setUser(appUser);
-                setIsAdmin(appUser.role === 'admin');
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appUser));
-                toast.success('Bem-vindo(a) de volta!');
-            } else {
-                toast.error('E-mail ou senha incorretos.');
-            }
-        } catch (error: any) {
-            console.error(error);
-            toast.error(error.message || 'Erro ao fazer login.');
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+            toast.error(error.message);
             throw error;
         }
+        toast.success('Bem-vindo(a) de volta!');
     };
 
     const signUp = async (email: string, password: string, name: string) => {
-        try {
-            const isOwner = email.toLowerCase() === OWNER_EMAIL;
-            const sheetUser = await sheetRegister({
-                email,
-                password,
-                displayName: name,
-                role: isOwner ? 'admin' : 'customer'
-            });
-
-            const appUser: AppUser = {
-                uid: sheetUser.uid,
-                email: sheetUser.email,
-                displayName: sheetUser.displayName,
-                role: sheetUser.role,
-                whatsapp: sheetUser.whatsapp,
-                cep: sheetUser.cep,
-                cidade: sheetUser.cidade,
-                endereco: sheetUser.endereco,
-                numero: sheetUser.numero,
-                complemento: sheetUser.complemento,
-                estado: sheetUser.estado,
-                photoURL: sheetUser.photoURL
-            };
-
-            setUser(appUser);
-            setIsAdmin(appUser.role === 'admin');
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appUser));
-            toast.success(`Conta criada com sucesso! Bem-vindo(a), ${name}`);
-        } catch (error: any) {
-            console.error(error);
-            toast.error(error.message || 'Erro ao criar conta.');
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { full_name: name }
+            }
+        });
+        
+        if (error) {
+            toast.error(error.message);
             throw error;
         }
+        toast.success(`Conta criada com sucesso!`);
     };
 
     const updateUserProfile = async (data: Partial<AppUser>) => {
         if (!user) throw new Error('No user logged in');
-        try {
-            const updatedUser = { ...user, ...data };
+        
+        const updatedUser = { ...user, ...data };
+        const { error } = await supabase
+            .from('users')
+            .update(data)
+            .eq('uid', user.uid);
             
-            // Persist to Google Sheets
-            await sheetUpdateUser(user.uid, data);
-            
-            setUser(updatedUser);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser));
-            toast.success('Perfil atualizado com sucesso!');
-        } catch (error) {
-            console.error(error);
+        if (error) {
             toast.error('Erro ao atualizar perfil.');
             throw error;
         }
+        
+        setUser(updatedUser as AppUser);
+        toast.success('Perfil atualizado com sucesso!');
     };
 
     const logout = async () => {
-        setUser(null);
-        setIsAdmin(false);
-        localStorage.removeItem(STORAGE_KEY);
-        toast.success('Você saiu da sua conta.');
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            toast.error(error.message);
+        } else {
+            toast.success('Você saiu da sua conta.');
+        }
     };
 
     const value = {
@@ -172,7 +190,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 }

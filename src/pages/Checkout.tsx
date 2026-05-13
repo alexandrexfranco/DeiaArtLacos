@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { addOrder } from '@/lib/sheets';
+import { supabase } from '@/lib/supabase';
 import { ArrowRight, ShoppingBag, MapPin, User, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -149,9 +149,10 @@ export default function Checkout() {
                 throw new Error("User not authenticated");
             }
 
-            console.log("Tentando salvar pedido no Sheets...", newOrder);
-            await addOrder({
-                userId: user.uid,
+            console.log("Tentando salvar pedido no Supabase...", newOrder);
+            const { error } = await supabase.from('orders').insert({
+                id: newOrder.id,
+                user_id: user.uid,
                 date: newOrder.date,
                 items: newOrder.items.map(item => ({
                     id: item.id,
@@ -164,7 +165,8 @@ export default function Checkout() {
                 status: newOrder.status,
                 paymentMethod: newOrder.paymentMethod
             });
-            console.log("Pedido salvo com sucesso no Google Sheets!");
+            if (error) throw error;
+            console.log("Pedido salvo com sucesso no Supabase!");
 
             // 4.1 Update User Profile with these details for next time
             await updateUserProfile({

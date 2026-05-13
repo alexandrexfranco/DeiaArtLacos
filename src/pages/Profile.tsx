@@ -4,7 +4,24 @@ import { useProducts } from '@/contexts/ProductContext';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Package, Heart, Camera, Edit2, Save, User } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getOrders, SheetOrder, uploadImage } from '@/lib/sheets';
+import { supabase } from '@/lib/supabase';
+
+interface OrderItem {
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+    image: string;
+}
+
+interface Order {
+    id: string;
+    date: string;
+    items: OrderItem[];
+    total: number;
+    status: string;
+    paymentMethod: string;
+}
 import { toast } from 'sonner';
 
 export default function Profile() {
@@ -23,7 +40,7 @@ export default function Profile() {
         estado: ''
     });
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [orders, setOrders] = useState<SheetOrder[]>([]);
+    const [orders, setOrders] = useState<Order[]>([]);
     const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'address' | 'favorites'>('overview');
 
     useEffect(() => {
@@ -34,8 +51,19 @@ export default function Profile() {
 
         const fetchOrders = async () => {
             try {
-                const ordersList = await getOrders(user.uid);
-                setOrders(ordersList.slice(0, 3)); // Show only last 3 orders
+                const { data, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .eq('user_id', user.uid)
+                    .order('date', { ascending: false })
+                    .limit(3);
+                
+                if (error) throw error;
+                
+                setOrders(data.map(order => ({
+                    ...order,
+                    items: typeof order.items === 'string' ? JSON.parse(order.items) : order.items
+                })) as Order[]);
             } catch (error) {
                 console.error('Error fetching orders:', error);
                 setOrders([]);
@@ -157,7 +185,20 @@ export default function Profile() {
         console.log('Iniciando upload da foto:', file.name, file.size, 'bytes');
         setIsUploading(true);
         try {
-            const url = await uploadImage(file);
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${user.uid}-${Math.random()}.${fileExt}`;
+            
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(fileName, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(fileName);
+
+            const url = data.publicUrl;
             console.log('Upload concluído, URL:', url);
             await updateUserProfile({ photoURL: url });
             toast.success('Foto de perfil atualizada!');

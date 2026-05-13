@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Save, Upload } from 'lucide-react';
-import { getSettings, updateSetting, uploadImage } from '@/lib/sheets';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export default function BannerManager() {
@@ -11,9 +11,9 @@ export default function BannerManager() {
     useEffect(() => {
         const fetchBanner = async () => {
             try {
-                const settings = await getSettings();
-                if (settings.heroBanner) {
-                    setPreviewUrl(settings.heroBanner);
+                const { data } = await supabase.from('settings').select('value').eq('key', 'heroBanner').maybeSingle();
+                if (data?.value) {
+                    setPreviewUrl(data.value);
                 }
             } catch (error) {
                 console.error('Error fetching banner:', error);
@@ -28,8 +28,9 @@ export default function BannerManager() {
 
         setIsLoading(true);
         try {
-            // Save the URL to Google Sheets settings
-            await updateSetting('heroBanner', previewUrl);
+            // Save the URL to Supabase settings
+            const { error } = await supabase.from('settings').upsert({ key: 'heroBanner', value: previewUrl });
+            if (error) throw error;
             toast.success('Configuração de banner salva com sucesso!');
         } catch (error) {
             console.error(error);
@@ -42,7 +43,8 @@ export default function BannerManager() {
     const handleRemove = async () => {
         setIsLoading(true);
         try {
-            await updateSetting('heroBanner', '');
+            const { error } = await supabase.from('settings').upsert({ key: 'heroBanner', value: '' });
+            if (error) throw error;
             setPreviewUrl('');
             toast.success('Banner customizado removido. O vídeo padrão do sistema será exibido.');
         } catch (error) {
@@ -65,9 +67,17 @@ export default function BannerManager() {
 
         setIsUploading(true);
         try {
-            const url = await uploadImage(file);
-            setPreviewUrl(url);
-            toast.success('Arquivo enviado para o Google Drive!');
+            const cleanName = file.name
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-zA-Z0-9.\-_]/g, '_');
+            const fileName = `banner-${Date.now()}-${cleanName}`;
+            const { error: uploadError } = await supabase.storage.from('assets').upload(fileName, file);
+            if (uploadError) throw uploadError;
+            
+            const { data } = supabase.storage.from('assets').getPublicUrl(fileName);
+            setPreviewUrl(data.publicUrl);
+            toast.success('Arquivo enviado para o Supabase!');
         } catch (error) {
             console.error('Error uploading file:', error);
             toast.error('Erro ao fazer upload.');
@@ -90,7 +100,7 @@ export default function BannerManager() {
                         {isUploading ? (
                             <div className="flex flex-col items-center">
                                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mb-4"></div>
-                                <p className="text-gray-500 font-medium">Enviando para o Drive...</p>
+                                <p className="text-gray-500 font-medium">Enviando para o Supabase...</p>
                             </div>
                         ) : previewUrl ? (
                             <>
@@ -130,7 +140,7 @@ export default function BannerManager() {
                                 cursor-pointer disabled:opacity-50"
                         />
                         <p className="text-xs text-gray-400">Recomendado: 1920x1080px (Alta Resolução). Vídeos max 15MB.</p>
-                        <p className="text-xs text-blue-600">✅ Arquivo salvo no Google Drive · URL salva no Google Sheets</p>
+                        <p className="text-xs text-blue-600">✅ Arquivo salvo no Supabase Storage · URL salva no banco de dados</p>
                     </div>
 
                     <div className="pt-6 border-t border-gray-100 flex justify-between items-center">

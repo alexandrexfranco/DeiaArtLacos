@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutDashboard, Package, Image as ImageIcon, LogOut, Home, Users } from 'lucide-react';
+import { LayoutDashboard, Package, Image as ImageIcon, LogOut, Home, Users, MessageSquare, Mail } from 'lucide-react';
 
 export function AdminLayout() {
     const { logout, user, isAdmin, loading } = useAuth();
@@ -20,8 +20,11 @@ export function AdminLayout() {
 
     if (loading) {
         return (
-            <div className="flex h-screen items-center justify-center bg-pink-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-pink-500"></div>
+                    <p className="text-gray-400 text-sm animate-pulse">Verificando acesso...</p>
+                </div>
             </div>
         );
     }
@@ -37,7 +40,9 @@ export function AdminLayout() {
         { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/admin/produtos', icon: Package, label: 'Produtos' },
         { path: '/admin/banners', icon: ImageIcon, label: 'Banners' },
+        { path: '/admin/avaliacoes', icon: MessageSquare, label: 'Avaliações' },
         { path: '/admin/clientes', icon: Users, label: 'Clientes' },
+        { path: '/admin/newsletter', icon: Mail, label: 'Newsletter' },
     ];
 
     return (

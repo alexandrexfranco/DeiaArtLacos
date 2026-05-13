@@ -19,12 +19,15 @@ import Dashboard from '@/pages/admin/Dashboard';
 import ProductManager from '@/pages/admin/ProductManager';
 import BannerManager from '@/pages/admin/BannerManager';
 import UserManager from '@/pages/admin/UserManager';
+import ReviewManager from '@/pages/admin/ReviewManager';
+import NewsletterManager from '@/pages/admin/NewsletterManager';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProductProvider } from '@/contexts/ProductContext';
 import { CartProvider } from '@/contexts/CartContext';
 import { Footer } from '@/components/Footer';
 import { CartSidebar } from '@/components/CartSidebar';
 import { Layout } from '@/components/Layout';
+import ScrollToTop from '@/components/ScrollToTop';
 
 function App() {
     return (
@@ -32,6 +35,7 @@ function App() {
             <ProductProvider>
                 <CartProvider>
                     <Router>
+                        <ScrollToTop />
                         <Toaster position="top-right" richColors />
                         <CartSidebar />
                         <div className="min-h-screen flex flex-col">
@@ -57,7 +61,9 @@ function App() {
                                     <Route index element={<Dashboard />} />
                                     <Route path="produtos" element={<ProductManager />} />
                                     <Route path="banners" element={<BannerManager />} />
+                                    <Route path="avaliacoes" element={<ReviewManager />} />
                                     <Route path="clientes" element={<UserManager />} />
+                                    <Route path="newsletter" element={<NewsletterManager />} />
                                 </Route>
 
                                 {/* Auth Routes */}
