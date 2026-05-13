@@ -72,7 +72,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                         };
 
                         const timeout = new Promise((_, reject) => 
-                            setTimeout(() => reject(new Error('TIMEOUT_DB')), 5000)
+                            setTimeout(() => reject(new Error('TIMEOUT_DB')), 15000)
                         );
 
                         console.log('🔐 Auth: Buscando perfil no banco...');
