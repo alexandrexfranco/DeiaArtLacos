@@ -71,13 +71,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                                 .single();
                         };
 
-                        const timeout = new Promise((_, reject) => 
-                            setTimeout(() => reject(new Error('TIMEOUT_DB')), 15000)
-                        );
-
                         console.log('🔐 Auth: Buscando perfil no banco...');
-                        const result = await Promise.race([fetchProfileData(), timeout]) as any;
-                        const { data: profile, error } = result;
+                        const { data: profile, error } = await fetchProfileData();
 
                         if (error && error.code !== 'PGRST116') {
                             console.error('❌ Auth: Erro ao buscar perfil:', error);
