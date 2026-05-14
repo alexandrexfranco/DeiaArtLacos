@@ -46,17 +46,22 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     const [favorites, setFavorites] = useState<string[]>([]);
 
     const refreshProducts = async () => {
+        console.log('📦 Iniciando busca de produtos...');
         setIsLoading(true);
         try {
             const { data, error } = await supabase.from('products').select('*');
-            if (error) throw error;
+            
+            if (error) {
+                console.error('❌ Erro Supabase (Products):', error);
+                throw error;
+            }
             
             const mapped: Product[] = data || [];
+            console.log(`✅ ${mapped.length} produtos carregados do Supabase`);
             setProducts(mapped);
             localStorage.setItem('products_backup', JSON.stringify(mapped));
-            console.log('✅ Products loaded from Supabase');
         } catch (error) {
-            console.error('❌ Supabase connection failed:', error);
+            console.error('⚠️ Falha crítica ao carregar produtos:', error);
             toast.warning('Modo Offline: Usando dados locais');
 
             const cached = localStorage.getItem('products_backup');
