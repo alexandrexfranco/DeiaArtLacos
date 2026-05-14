@@ -100,17 +100,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signIn = async (email: string, password: string) => {
         console.log(`🔐 Tentando login para: ${email}...`);
+        
+        // Teste de conectividade rápido
         try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const resp = await fetch(import.meta.env.VITE_SUPABASE_URL, { method: 'HEAD', mode: 'no-cors' });
+            console.log('🌐 Conexão com Supabase: OK');
+        } catch (e) {
+            console.warn('🌐 Conexão com Supabase: FALHOU ou Bloqueada');
+        }
+
+        const authPromise = supabase.auth.signInWithPassword({ email, password });
+        
+        // Timeout de 10 segundos para a promessa do Supabase
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout: O Supabase não respondeu a tempo.')), 10000)
+        );
+
+        try {
+            const { data, error } = await Promise.race([authPromise, timeoutPromise]) as any;
+            
             if (error) {
                 console.error('❌ Erro no signInWithPassword:', error.message);
                 toast.error(error.message);
                 throw error;
             }
-            console.log('✅ Auth: Login bem-sucedido via Supabase');
+
+            console.log('✅ Auth: Login bem-sucedido via Supabase', data?.user?.id);
             toast.success('Bem-vindo(a) de volta!');
         } catch (err: any) {
-            console.error('❌ Falha na autenticação:', err);
+            console.error('❌ Falha na autenticação:', err.message || err);
+            toast.error(err.message || 'Erro ao conectar com o servidor.');
             throw err;
         }
     };
