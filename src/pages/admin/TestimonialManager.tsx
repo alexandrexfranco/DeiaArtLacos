@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Star, Plus, Trash2, Edit2, Save, X, User } from 'lucide-react';
+import { Star, Plus, Trash2, Edit2, Save, X, User, Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Testimonial {
@@ -15,8 +15,39 @@ interface Testimonial {
 export default function TestimonialManager() {
     const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isUploading, setIsUploading] = useState(false);
     const [isEditing, setIsEditing] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<Partial<Testimonial>>({});
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `avatars/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('testimonials')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('testimonials')
+                .getPublicUrl(filePath);
+
+            setEditForm({ ...editForm, image: publicUrl });
+            toast.success('Foto carregada!');
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            toast.error('Erro ao subir foto.');
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     useEffect(() => {
         fetchTestimonials();
@@ -136,19 +167,27 @@ export default function TestimonialManager() {
                                 value={editForm.content}
                                 onChange={e => setEditForm({...editForm, content: e.target.value})}
                             />
-                            <div className="flex gap-4">
-                                <input 
-                                    placeholder="URL da Foto (opcional)"
-                                    className="flex-1 p-3 rounded-xl border border-pink-100"
-                                    value={editForm.image}
-                                    onChange={e => setEditForm({...editForm, image: e.target.value})}
-                                />
+                            <div className="flex gap-4 items-center bg-white p-3 rounded-xl border border-pink-100">
+                                {editForm.image ? (
+                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-pink-200">
+                                        <img src={editForm.image} alt="Preview" className="w-full h-full object-cover" />
+                                    </div>
+                                ) : (
+                                    <div className="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-pink-300">
+                                        <User size={24} />
+                                    </div>
+                                )}
+                                <label className="flex-1 flex items-center justify-center gap-2 bg-pink-50 text-pink-600 py-2 rounded-lg cursor-pointer hover:bg-pink-100 transition-colors border border-dashed border-pink-300">
+                                    {isUploading ? <Loader2 className="animate-spin" size={20} /> : <Upload size={20} />}
+                                    <span className="text-sm font-medium">{editForm.image ? 'Alterar Foto' : 'Subir Foto'}</span>
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={isUploading} />
+                                </label>
                                 <select 
-                                    className="p-3 rounded-xl border border-pink-100"
+                                    className="p-2 rounded-lg border border-pink-100 text-sm"
                                     value={editForm.rating}
                                     onChange={e => setEditForm({...editForm, rating: Number(e.target.value)})}
                                 >
-                                    {[5,4,3,2,1].map(n => <option key={n} value={n}>{n} Estrelas</option>)}
+                                    {[5,4,3,2,1].map(n => <option key={n} value={n}>{n} ★</option>)}
                                 </select>
                             </div>
                         </div>
