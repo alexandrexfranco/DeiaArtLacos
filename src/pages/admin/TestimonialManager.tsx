@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Star, Plus, Trash2, Edit2, Save, X, User, Upload, Loader2 } from 'lucide-react';
+import { Star, Plus, Trash2, Edit2, Save, X, User, Upload, Loader2, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Testimonial {
@@ -70,6 +70,45 @@ export default function TestimonialManager() {
         }
     };
 
+    const importStaticTestimonials = async () => {
+        setIsLoading(true);
+        try {
+            const staticData = [
+                {
+                    name: 'Ana Julia',
+                    role: 'Mãe da Sofia',
+                    content: 'Amei o laço! Acabamento impecável e chegou super rápido. A Sofia não quer tirar mais da cabeça!',
+                    rating: 5,
+                    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200'
+                },
+                {
+                    name: 'Fernanda Lima',
+                    role: 'Mãe da Alice',
+                    content: 'Produtos maravilhosos. Dá para sentir o carinho em cada detalhe. O atendimento também foi incrível.',
+                    rating: 5,
+                    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200'
+                },
+                {
+                    name: 'Carla Dias',
+                    role: 'Mãe da Beatriz',
+                    content: 'Comprei para o batizado da minha filha e ficou perfeito. Muito delicado e confortável, não aperta a cabecinha.',
+                    rating: 5,
+                    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200'
+                }
+            ];
+
+            const { error } = await supabase.from('testimonials').insert(staticData);
+            if (error) throw error;
+            
+            toast.success('Depoimentos iniciais importados!');
+            fetchTestimonials();
+        } catch (error: any) {
+            toast.error('Erro ao importar: ' + error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleAdd = () => {
         setIsEditing('new');
         setEditForm({ name: '', role: '', content: '', rating: 5, image: '' });
@@ -134,12 +173,22 @@ export default function TestimonialManager() {
         <div className="space-y-8">
             <div className="flex justify-between items-center">
                 <h2 className="text-3xl font-bold text-gray-800">Gerenciar Depoimentos</h2>
-                <button 
-                    onClick={handleAdd}
-                    className="bg-pink-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-pink-600 transition-colors"
-                >
-                    <Plus size={20} /> Novo Depoimento
-                </button>
+                <div className="flex gap-3">
+                    {testimonials.length === 0 && (
+                        <button 
+                            onClick={importStaticTestimonials}
+                            className="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-gray-200 transition-colors"
+                        >
+                            <Download size={20} /> Importar Padrão
+                        </button>
+                    )}
+                    <button 
+                        onClick={handleAdd}
+                        className="bg-pink-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-pink-600 transition-colors"
+                    >
+                        <Plus size={20} /> Novo Depoimento
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
