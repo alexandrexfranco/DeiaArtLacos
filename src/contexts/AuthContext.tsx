@@ -47,48 +47,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             async (event, session) => {
                 console.log(`⚡ Auth Event: ${event}`);
                 
+                if (!session?.user) {
+                    console.log('📴 Nenhuma sessão ativa');
+                    setUser(null);
+                    setLoading(false);
+                    return;
+                }
+
+                // ESTRATÉGIA DE EMERGÊNCIA: Se for o dono, já define como admin antes de ir no banco
+                const isOwner = session.user.email?.toLowerCase() === OWNER_EMAIL;
+                if (isOwner) {
+                    console.log('👑 Admin detectado (Dono), liberando acesso imediato...');
+                    setUser({
+                        uid: session.user.id,
+                        email: session.user.email || '',
+                        display_name: session.user.user_metadata?.full_name || 'Admin',
+                        role: 'admin'
+                    } as any);
+                    setLoading(false);
+                }
+
                 try {
-                    if (session?.user) {
-                        console.log('👤 Usuário autenticado, buscando perfil...');
-                        
-                        const { data: profile, error } = await supabase
-                            .from('users')
-                            .select('*')
-                            .eq('uid', session.user.id)
-                            .maybeSingle();
+                    console.log('👤 Buscando perfil no banco (em background)...');
+                    
+                    // Timeout de 5 segundos para a busca no banco
+                    const profilePromise = supabase
+                        .from('users')
+                        .select('*')
+                        .eq('uid', session.user.id)
+                        .maybeSingle();
 
-                        if (error) {
-                            console.warn('⚠️ Erro ao buscar perfil (banco):', error.message);
-                        }
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('DB Timeout')), 5000)
+                    );
 
-                        if (profile) {
-                            console.log('✅ Perfil carregado do banco');
-                            setUser(profile as any);
-                        } else {
-                            console.log('🆕 Perfil não encontrado, usando dados da sessão...');
-                            const isOwner = session.user.email?.toLowerCase() === OWNER_EMAIL;
-                            const fallbackProfile = {
-                                uid: session.user.id,
-                                email: session.user.email || '',
-                                display_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                                role: isOwner ? 'admin' : 'customer'
-                            };
-                            setUser(fallbackProfile as any);
+                    const { data: profile, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
 
-                            // Tenta criar o perfil em background, mas não trava o login
-                            supabase.from('users').insert(fallbackProfile).then(({ error: insErr }) => {
-                                if (insErr) console.warn('Poderia ignorar: Erro ao criar perfil no banco', insErr);
-                            });
-                        }
-                    } else {
-                        console.log('📴 Nenhuma sessão ativa');
-                        setUser(null);
+                    if (error) {
+                        console.warn('⚠️ Erro/Timeout ao buscar perfil no banco:', error.message);
+                    } else if (profile) {
+                        console.log('✅ Perfil atualizado do banco');
+                        setUser(profile as any);
                     }
                 } catch (err) {
-                    console.error('❌ Erro crítico no onAuthStateChange:', err);
+                    console.warn('ℹ️ Usando dados da sessão (Banco de dados inacessível)');
                 } finally {
                     setLoading(false);
-                    console.log('⌛ Carregamento de Auth finalizado');
+                    console.log('⌛ Processo de Auth concluído');
                 }
             }
         );
