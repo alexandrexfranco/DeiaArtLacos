@@ -21,6 +21,7 @@ import BannerManager from '@/pages/admin/BannerManager';
 import UserManager from '@/pages/admin/UserManager';
 import ReviewManager from '@/pages/admin/ReviewManager';
 import NewsletterManager from '@/pages/admin/NewsletterManager';
+import TestimonialManager from '@/pages/admin/TestimonialManager';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProductProvider } from '@/contexts/ProductContext';
 import { CartProvider } from '@/contexts/CartContext';
@@ -64,6 +65,7 @@ function App() {
                                     <Route path="avaliacoes" element={<ReviewManager />} />
                                     <Route path="clientes" element={<UserManager />} />
                                     <Route path="newsletter" element={<NewsletterManager />} />
+                                    <Route path="depoimentos" element={<TestimonialManager />} />
                                 </Route>
 
                                 {/* Auth Routes */}

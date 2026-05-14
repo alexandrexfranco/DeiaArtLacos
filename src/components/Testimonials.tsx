@@ -1,7 +1,18 @@
 import { Star, Quote } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
-const testimonials = [
+interface Testimonial {
+    id: string | number;
+    name: string;
+    role: string;
+    content: string;
+    rating: number;
+    image: string;
+}
+
+const fallbackTestimonials: Testimonial[] = [
     {
         id: 1,
         name: "Ana Julia",
@@ -29,6 +40,35 @@ const testimonials = [
 ];
 
 export function Testimonials() {
+    const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTestimonials = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('testimonials')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                if (data && data.length > 0) {
+                    setTestimonials(data);
+                } else {
+                    setTestimonials(fallbackTestimonials);
+                }
+            } catch (error) {
+                console.error('Error fetching testimonials:', error);
+                setTestimonials(fallbackTestimonials);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchTestimonials();
+    }, []);
+
+    if (isLoading) return null;
     return (
         <section className="py-20 bg-gradient-to-b from-white to-pink-50 overflow-hidden relative">
             {/* Decoration */}

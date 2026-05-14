@@ -1,7 +1,7 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutDashboard, Package, Image as ImageIcon, LogOut, Home, Users, MessageSquare, Mail } from 'lucide-react';
+import { LayoutDashboard, Package, Image as ImageIcon, LogOut, Home, Users, MessageSquare, Mail, Quote } from 'lucide-react';
 
 export function AdminLayout() {
     const { logout, user, isAdmin, loading } = useAuth();
@@ -41,6 +41,7 @@ export function AdminLayout() {
         { path: '/admin/produtos', icon: Package, label: 'Produtos' },
         { path: '/admin/banners', icon: ImageIcon, label: 'Banners' },
         { path: '/admin/avaliacoes', icon: MessageSquare, label: 'Avaliações' },
+        { path: '/admin/depoimentos', icon: Quote, label: 'Depoimentos' },
         { path: '/admin/clientes', icon: Users, label: 'Clientes' },
         { path: '/admin/newsletter', icon: Mail, label: 'Newsletter' },
     ];
