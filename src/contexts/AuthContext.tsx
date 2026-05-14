@@ -46,54 +46,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 console.log(`⚡ Auth Event: ${event}`);
-                
-                if (!session?.user) {
-                    console.log('📴 Nenhuma sessão ativa');
-                    setUser(null);
-                    setLoading(false);
-                    return;
-                }
-
-                // ESTRATÉGIA DE EMERGÊNCIA: Se for o dono, já define como admin antes de ir no banco
-                const isOwner = session.user.email?.toLowerCase() === OWNER_EMAIL;
-                if (isOwner) {
-                    console.log('👑 Admin detectado (Dono), liberando acesso imediato...');
-                    setUser({
-                        uid: session.user.id,
-                        email: session.user.email || '',
-                        display_name: session.user.user_metadata?.full_name || 'Admin',
-                        role: 'admin'
-                    } as any);
-                    setLoading(false);
-                }
 
                 try {
-                    console.log('👤 Buscando perfil no banco (em background)...');
-                    
-                    // Timeout de 5 segundos para a busca no banco
-                    const profilePromise = supabase
-                        .from('users')
-                        .select('*')
-                        .eq('uid', session.user.id)
-                        .maybeSingle();
+                    if (session?.user) {
+                        console.log('👤 Usuário autenticado, buscando perfil...');
 
-                    const timeoutPromise = new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('DB Timeout')), 5000)
-                    );
+                        const { data: profile, error } = await supabase
+                            .from('users')
+                            .select('*')
+                            .eq('uid', session.user.id)
+                            .maybeSingle();
 
-                    const { data: profile, error } = await Promise.race([profilePromise, timeoutPromise]) as any;
+                        if (error) {
+                            console.warn('⚠️ Erro ao buscar perfil (banco):', error.message);
+                        }
 
-                    if (error) {
-                        console.warn('⚠️ Erro/Timeout ao buscar perfil no banco:', error.message);
-                    } else if (profile) {
-                        console.log('✅ Perfil atualizado do banco');
-                        setUser(profile as any);
+                        if (profile) {
+                            console.log('✅ Perfil carregado do banco');
+                            setUser(profile as any);
+                        } else {
+                            console.log('🆕 Perfil não encontrado, usando dados da sessão...');
+                            const isOwner = session.user.email?.toLowerCase() === OWNER_EMAIL;
+                            const fallbackProfile = {
+                                uid: session.user.id,
+                                email: session.user.email || '',
+                                display_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                                role: isOwner ? 'admin' : 'customer'
+                            };
+                            setUser(fallbackProfile as any);
+
+                            // Tenta criar o perfil em background, mas não trava o login
+                            supabase.from('users').insert(fallbackProfile).then(({ error: insErr }) => {
+                                if (insErr) console.warn('Poderia ignorar: Erro ao criar perfil no banco', insErr);
+                            });
+                        }
+                    } else {
+                        console.log('📴 Nenhuma sessão ativa');
+                        setUser(null);
                     }
                 } catch (err) {
-                    console.warn('ℹ️ Usando dados da sessão (Banco de dados inacessível)');
+                    console.error('❌ Erro crítico no onAuthStateChange:', err);
                 } finally {
                     setLoading(false);
-                    console.log('⌛ Processo de Auth concluído');
+                    console.log('⌛ Carregamento de Auth finalizado');
                 }
             }
         );
@@ -105,25 +100,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signIn = async (email: string, password: string) => {
         console.log(`🔐 Tentando login para: ${email}...`);
-        
+
         // Teste de conectividade rápido
         try {
-            const resp = await fetch(import.meta.env.VITE_SUPABASE_URL, { method: 'HEAD', mode: 'no-cors' });
+            await fetch(import.meta.env.VITE_SUPABASE_URL, { method: 'HEAD', mode: 'no-cors' });
             console.log('🌐 Conexão com Supabase: OK');
         } catch (e) {
             console.warn('🌐 Conexão com Supabase: FALHOU ou Bloqueada');
         }
 
         const authPromise = supabase.auth.signInWithPassword({ email, password });
-        
+
         // Timeout de 10 segundos para a promessa do Supabase
-        const timeoutPromise = new Promise((_, reject) => 
+        const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Timeout: O Supabase não respondeu a tempo.')), 10000)
         );
 
         try {
             const { data, error } = await Promise.race([authPromise, timeoutPromise]) as any;
-            
+
             if (error) {
                 console.error('❌ Erro no signInWithPassword:', error.message);
                 toast.error(error.message);
@@ -147,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 data: { full_name: name }
             }
         });
-        
+
         if (error) {
             toast.error(error.message);
             throw error;
@@ -167,18 +162,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const updateUserProfile = async (data: Partial<AppUser>) => {
         if (!user) throw new Error('No user logged in');
-        
+
         const updatedUser = { ...user, ...data };
         const { error } = await supabase
             .from('users')
             .update(data)
             .eq('uid', user.uid);
-            
+
         if (error) {
             toast.error('Erro ao atualizar perfil.');
             throw error;
         }
-        
+
         setUser(updatedUser as AppUser);
         toast.success('Perfil atualizado com sucesso!');
     };
