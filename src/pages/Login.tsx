@@ -21,29 +21,29 @@ export default function Login() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (isLoading) return;
+
         setIsLoading(true);
+        console.log('🚀 Iniciando processo de login no formulário...');
+
+        // Timeout de segurança de 15 segundos
+        const timeout = setTimeout(() => {
+            if (isLoading) {
+                setIsLoading(false);
+                console.warn('⚠️ O login demorou demais e foi cancelado automaticamente.');
+                // Note: We don't toast here because the user might still be waiting
+            }
+        }, 15000);
+
         try {
             await signIn(email, password);
-            // Valid login, but we wait for AuthContext to determine role for redirect.
-            // If regular user (isAdmin never true), we redirect to home manually here as fallback? 
-            // Better: always redirect to home, and if isAdmin useEffect fires, it overrides?
-            // Or simpler:
-            // If we just await signIn, the AuthContext state updates.
-            // If isAdmin becomes true, the effect above handles it.
-            // If NOT, we should go to home.
-            // But scanning DB takes a moment.
-
-            // Strategy:
-            // Let's redirect to home by default. If the user is an admin, the `isAdmin` effect 
-            // will kick in (maybe with a slight delay) and move them to /admin.
-            // However, to avoid "flash of home page", we could check logic here?
-            // Since we want to PROVE it's DB driven, let's just go to home.
-            // If the global isAdmin state flips to true, the Router (or an effect) could move them.
-
+            console.log('🏁 Processo de login finalizado. Redirecionando...');
             navigate('/perfil');
         } catch (error) {
-            // Error handling is done in AuthContext
+            console.error('❌ Erro capturado no handleSubmit:', error);
+            // toast.error já é disparado no AuthContext
         } finally {
+            clearTimeout(timeout);
             setIsLoading(false);
         }
     };

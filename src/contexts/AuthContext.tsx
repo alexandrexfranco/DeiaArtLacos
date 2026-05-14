@@ -97,12 +97,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const signIn = async (email: string, password: string) => {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) {
-            toast.error(error.message);
-            throw error;
+        console.log(`🔐 Tentando login para: ${email}...`);
+        try {
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                console.error('❌ Erro no signInWithPassword:', error.message);
+                toast.error(error.message);
+                throw error;
+            }
+            console.log('✅ Auth: Login bem-sucedido via Supabase');
+            toast.success('Bem-vindo(a) de volta!');
+        } catch (err: any) {
+            console.error('❌ Falha na autenticação:', err);
+            throw err;
         }
-        toast.success('Bem-vindo(a) de volta!');
     };
 
     const signUp = async (email: string, password: string, name: string) => {
