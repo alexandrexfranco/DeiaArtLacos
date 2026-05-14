@@ -46,19 +46,29 @@ export function Testimonials() {
     useEffect(() => {
         const fetchTestimonials = async () => {
             try {
+                console.log('📢 Buscando depoimentos para a Home...');
                 const { data, error } = await supabase
                     .from('testimonials')
                     .select('*')
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
+
                 if (data && data.length > 0) {
-                    setTestimonials(data);
+                    console.log('✅ Depoimentos do banco carregados:', data.length);
+                    // Mapear 'image' para 'image_url' se necessário para manter compatibilidade
+                    const formattedData = data.map(t => ({
+                        ...t,
+                        image: t.image || t.image_url,
+                        image_url: t.image || t.image_url
+                    }));
+                    setTestimonials(formattedData);
                 } else {
+                    console.log('ℹ️ Nenhum depoimento no banco, usando padrão.');
                     setTestimonials(fallbackTestimonials);
                 }
-            } catch (error) {
-                console.error('Error fetching testimonials:', error);
+            } catch (err) {
+                console.error('❌ Erro ao buscar depoimentos:', err);
                 setTestimonials(fallbackTestimonials);
             } finally {
                 setIsLoading(false);
