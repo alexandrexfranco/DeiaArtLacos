@@ -37,66 +37,84 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<AppUser | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
     const isAdmin = user?.role === 'admin' || user?.email?.toLowerCase() === OWNER_EMAIL;
 
     useEffect(() => {
         console.log('🔐 Auth: Inicializando monitoramento...');
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
-                console.log(`⚡ Auth Event: ${event}`);
-
-                try {
-                    if (session?.user) {
-                        console.log('👤 Usuário autenticado, buscando perfil...');
-
-                        const { data: profile, error } = await supabase
-                            .from('users')
-                            .select('*')
-                            .eq('uid', session.user.id)
-                            .maybeSingle();
-
-                        if (error) {
-                            console.warn('⚠️ Erro ao buscar perfil (banco):', error.message);
-                        }
-
-                        if (profile) {
-                            console.log('✅ Perfil carregado do banco');
-                            setUser(profile as any);
-                        } else {
-                            console.log('🆕 Perfil não encontrado, usando dados da sessão...');
-                            const isOwner = session.user.email?.toLowerCase() === OWNER_EMAIL;
-                            const fallbackProfile = {
-                                uid: session.user.id,
-                                email: session.user.email || '',
-                                display_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                                role: isOwner ? 'admin' : 'customer'
-                            };
-                            setUser(fallbackProfile as any);
-
-                            // Tenta criar o perfil em background, mas não trava o login
-                            supabase.from('users').insert(fallbackProfile).then(({ error: insErr }) => {
-                                if (insErr) console.warn('Poderia ignorar: Erro ao criar perfil no banco', insErr);
-                            });
-                        }
-                    } else {
-                        console.log('📴 Nenhuma sessão ativa');
-                        setUser(null);
-                    }
-                } catch (err) {
-                    console.error('❌ Erro crítico no onAuthStateChange:', err);
-                } finally {
-                    setLoading(false);
-                    console.log('⌛ Carregamento de Auth finalizado');
-                }
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            console.log(`⚡ Auth Event: ${event}`);
+            
+            if (event === 'SIGNED_OUT') {
+                setUser(null);
+                setLoading(false);
+            } else if (session?.user) {
+                // Ao logar ou mudar estado, iniciamos a busca do perfil
+                fetchProfile(session.user);
+            } else {
+                setLoading(false);
             }
-        );
+        });
 
         return () => {
             subscription.unsubscribe();
         };
     }, []);
+
+    const fetchProfile = async (supabaseUser: any) => {
+        if (!supabaseUser) return;
+        
+        console.log('👤 Buscando perfil real no banco de dados...');
+        setIsLoadingProfile(true);
+
+        try {
+            const { data: profile, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('uid', supabaseUser.id)
+                .maybeSingle();
+
+            if (error) {
+                console.error('❌ Erro ao buscar perfil no banco:', error.message);
+                throw error;
+            }
+
+            if (profile) {
+                console.log('✅ Perfil carregado com sucesso do banco');
+                setUser(profile as any);
+            } else {
+                console.log('🆕 Perfil não encontrado, criando novo no banco...');
+                const isOwner = supabaseUser.email?.toLowerCase() === OWNER_EMAIL;
+                const newProfile = {
+                    uid: supabaseUser.id,
+                    email: supabaseUser.email || '',
+                    display_name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || 'Usuário',
+                    role: isOwner ? 'admin' : 'customer'
+                };
+                
+                const { error: insError } = await supabase.from('users').insert(newProfile);
+                if (insError) throw insError;
+                
+                setUser(newProfile as any);
+                console.log('✅ Novo perfil criado e carregado');
+            }
+        } catch (err) {
+            console.error('⚠️ Falha ao obter dados do banco:', err);
+            // Fallback de segurança apenas se o banco falhar criticamente
+            const isOwner = supabaseUser.email?.toLowerCase() === OWNER_EMAIL;
+            setUser({
+                uid: supabaseUser.id,
+                email: supabaseUser.email || '',
+                display_name: supabaseUser.user_metadata?.full_name || 'Usuário',
+                role: isOwner ? 'admin' : 'customer'
+            } as any);
+        } finally {
+            setIsLoadingProfile(false);
+            setLoading(false);
+        }
+    };
 
     const signIn = async (email: string, password: string) => {
         console.log(`🔐 Tentando login para: ${email}...`);
