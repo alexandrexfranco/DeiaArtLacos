@@ -22,6 +22,8 @@ export function HeroSection() {
         fetchBanner();
     }, []);
 
+    const { user } = useAuth();
+
     // Force video to play on mobile
     useEffect(() => {
         if (videoRef.current) {
@@ -106,14 +108,24 @@ export function HeroSection() {
                         <Link to="/loja" className="px-8 py-4 bg-pink-500 text-white rounded-full font-bold text-lg hover:bg-pink-600 hover:scale-105 transition-all shadow-lg flex items-center gap-2">
                             Ver Coleção <ArrowRight className="w-5 h-5" />
                         </Link>
-                        <a
-                            href="https://api.whatsapp.com/send?phone=5527997948142&text=Ol%C3%A1!%20%E2%9C%A8%20Gostaria%20de%20fazer%20uma%20encomenda%20personalizada.%20%F0%9F%8E%80"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-8 py-4 bg-white text-pink-600 rounded-full font-bold text-lg hover:bg-pink-50 transition-all shadow-lg"
-                        >
-                            Encomendar
-                        </a>
+                        
+                        {user ? (
+                            <a
+                                href="https://api.whatsapp.com/send?phone=5527997948142&text=Ol%C3%A1!%20%E2%9C%A8%20Gostaria%20de%20fazer%20uma%20encomenda%20personalizada.%20%F0%9F%8E%80"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-8 py-4 bg-white text-pink-600 rounded-full font-bold text-lg hover:bg-pink-50 transition-all shadow-lg w-full sm:w-auto text-center"
+                            >
+                                Encomendar
+                            </a>
+                        ) : (
+                            <Link 
+                                to="/login" 
+                                className="px-8 py-4 bg-white text-pink-600 rounded-full font-bold text-lg hover:bg-pink-50 transition-all shadow-lg w-full sm:w-auto text-center"
+                            >
+                                Encomendar
+                            </Link>
+                        )}
                     </div>
                 </motion.div>
             </div>
