@@ -3,6 +3,7 @@ import { Toaster } from 'sonner';
 import Home from '@/pages/Home';
 import Login from '@/pages/Login';
 import Signup from '@/pages/Signup';
+import ForgotPassword from '@/pages/ForgotPassword';
 import Shop from '@/pages/Shop';
 import About from '@/pages/About';
 import ExchangePolicy from '@/pages/ExchangePolicy';
@@ -71,6 +72,7 @@ function App() {
                                 {/* Auth Routes */}
                                 <Route path="/login" element={<Login />} />
                                 <Route path="/cadastro" element={<Signup />} />
+                                <Route path="/esqueceu-senha" element={<ForgotPassword />} />
                             </Routes>
 
                             {/* Footer outside Layout to be everywhere except maybe auth if desired, but here it's global inside flex col */}
