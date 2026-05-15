@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export function HeroSection() {
     const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     useEffect(() => {
         const fetchBanner = async () => {
@@ -21,7 +22,18 @@ export function HeroSection() {
         fetchBanner();
     }, []);
 
-    const isVideo = bannerUrl?.match(/\.(mp4|webm)$/i) || bannerUrl?.includes('uc?') || bannerUrl?.includes('export=');
+    // Force video to play on mobile
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.defaultMuted = true;
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(err => {
+                console.warn("Autoplay was prevented:", err);
+            });
+        }
+    }, [bannerUrl]);
+
+    const isVideo = bannerUrl?.match(/\.(mp4|webm|mov)$/i) || bannerUrl?.includes('uc?') || bannerUrl?.includes('export=');
 
     return (
         <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
@@ -32,11 +44,14 @@ export function HeroSection() {
                 {bannerUrl ? (
                     isVideo ? (
                         <video
+                            ref={videoRef}
                             key={bannerUrl}
                             autoPlay
                             loop
                             muted
                             playsInline
+                            webkit-playsinline="true"
+                            preload="auto"
                             className="w-full h-full object-cover"
                         >
                             <source src={bannerUrl.replace('export=download&', '')} type="video/mp4" />
@@ -51,10 +66,13 @@ export function HeroSection() {
                 ) : (
                     // Default Fallback
                     <video
+                        ref={videoRef}
                         autoPlay
                         loop
                         muted
                         playsInline
+                        webkit-playsinline="true"
+                        preload="auto"
                         crossOrigin="anonymous"
                         className="w-full h-full object-cover"
                         poster="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?q=80&w=1964&auto=format&fit=crop"
