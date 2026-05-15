@@ -99,6 +99,19 @@ export function Header() {
 
                     {/* Icons & Mobile Menu (Mobile Only) */}
                     <div className="flex items-center gap-4 md:hidden">
+                        {/* Auth (Mobile) */}
+                        {user ? (
+                            <Link to={isAdmin ? "/admin" : "/perfil"} className={`p-2 transition-all ${!isScrolled ? 'text-white' : 'text-gray-600'}`}>
+                                <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold border border-pink-200">
+                                    {user.email?.[0].toUpperCase()}
+                                </div>
+                            </Link>
+                        ) : (
+                            <Link to="/login" className={`p-2 transition-all ${!isScrolled ? 'text-white' : 'text-gray-600'}`}>
+                                <User className="w-6 h-6" />
+                            </Link>
+                        )}
+
                         {/* Cart (Mobile) */}
                         <button
                             onClick={() => setIsCartOpen(true)}
@@ -151,17 +164,18 @@ export function Header() {
                             {user ? (
                                 <>
                                     <Link 
-                                        to={user.email === 'alexandrefranco.com@gmail.com' ? "/admin" : "/perfil"} 
+                                        to={isAdmin ? "/admin" : "/perfil"} 
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className="flex items-center gap-2 text-pink-600 font-bold"
                                     >
                                         <User className="w-6 h-6" />
-                                        {user.email === 'alexandrefranco.com@gmail.com' ? 'Painel Admin' : 'Minha Conta'}
+                                        {isAdmin ? 'Painel Admin' : 'Minha Conta'}
                                     </Link>
                                     <button 
-                                        onClick={() => {
-                                            signOut();
+                                        onClick={async () => {
+                                            await signOut();
                                             setIsMobileMenuOpen(false);
+                                            navigate('/');
                                         }}
                                         className="flex items-center gap-2 text-gray-500 hover:text-red-500 transition-colors"
                                     >
