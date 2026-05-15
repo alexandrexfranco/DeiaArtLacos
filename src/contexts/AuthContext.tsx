@@ -37,7 +37,6 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<AppUser | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
     const isAdmin = user?.role === 'admin' || user?.email?.toLowerCase() === OWNER_EMAIL;
 
@@ -67,7 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!supabaseUser) return;
         
         console.log('👤 Buscando perfil real no banco de dados...');
-        setIsLoadingProfile(true);
 
         try {
             const { data: profile, error } = await supabase
@@ -111,7 +109,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 role: isOwner ? 'admin' : 'customer'
             } as any);
         } finally {
-            setIsLoadingProfile(false);
             setLoading(false);
         }
     };
