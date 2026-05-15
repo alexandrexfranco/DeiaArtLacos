@@ -88,9 +88,11 @@ export default function BannerManager() {
 
     return (
         <div>
-            <div className="mb-8">
-                <h2 className="text-3xl font-bold text-gray-800">Gerenciar Banner Principal</h2>
-                <p className="text-gray-500 mt-2">Altere a imagem ou vídeo de fundo da página inicial.</p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <div>
+                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">Gerenciar Banner Principal</h2>
+                    <p className="text-gray-500 mt-1">Altere a imagem ou vídeo de fundo da página inicial.</p>
+                </div>
             </div>
 
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 max-w-3xl">

@@ -93,17 +93,98 @@ export default function ReviewManager() {
 
     return (
         <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 className="text-2xl lg:text-3xl font-bold text-gray-800 flex items-center gap-3">
                     <MessageSquare className="text-pink-500" /> Gerenciar Avaliações
                 </h2>
-                <div className="text-sm text-gray-500">
-                    Total: {reviews.length} avaliações
+                <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm">
+                    Total: <span className="font-bold text-pink-500">{reviews.length}</span> avaliações
                 </div>
             </div>
 
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Mobile Cards View */}
+                <div className="grid grid-cols-1 divide-y divide-gray-100 lg:hidden">
+                    {reviews.length === 0 ? (
+                        <div className="px-6 py-12 text-center text-gray-400">
+                            Nenhuma avaliação encontrada.
+                        </div>
+                    ) : (
+                        reviews.map((review) => (
+                            <div key={review.id} className={`p-4 space-y-3 ${!review.is_approved ? 'bg-amber-50/20' : ''}`}>
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h4 className="font-bold text-gray-800">{review.user_name}</h4>
+                                        <p className="text-xs text-gray-500">
+                                            {new Date(review.created_at).toLocaleDateString('pt-BR')}
+                                        </p>
+                                    </div>
+                                    {review.is_approved ? (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700">
+                                            <CheckCircle size={10} /> Aprovada
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">
+                                            <XCircle size={10} /> Pendente
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="space-y-1">
+                                    <p className="text-xs text-gray-400 uppercase font-bold">Produto</p>
+                                    <Link 
+                                        to={`/produto/${review.product_id}`} 
+                                        className="text-pink-500 hover:underline flex items-center gap-1 text-sm font-medium"
+                                        target="_blank"
+                                    >
+                                        {review.products?.name} <ExternalLink size={12} />
+                                    </Link>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-xs text-gray-400 uppercase font-bold">Avaliação</p>
+                                        <div className="flex text-amber-400">
+                                            {[...Array(5)].map((_, i) => (
+                                                <Star 
+                                                    key={i} 
+                                                    size={12} 
+                                                    fill={i < review.rating ? "currentColor" : "none"} 
+                                                    className={i < review.rating ? "" : "text-gray-200"}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <p className="text-gray-600 text-sm bg-gray-50 p-3 rounded-xl italic">
+                                        "{review.comment}"
+                                    </p>
+                                </div>
+
+                                <div className="flex justify-end gap-2 pt-2">
+                                    <button
+                                        onClick={() => handleToggleApproval(review)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-colors font-bold text-xs ${
+                                            review.is_approved 
+                                            ? 'text-amber-600 bg-amber-50 hover:bg-amber-100' 
+                                            : 'text-green-600 bg-green-50 hover:bg-green-100'
+                                        }`}
+                                    >
+                                        {review.is_approved ? <><XCircle size={14} /> Ocultar</> : <><CheckCircle size={14} /> Aprovar</>}
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(review.id)}
+                                        className="flex items-center gap-2 px-4 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors font-bold text-xs"
+                                    >
+                                        <Trash2 size={14} /> Excluir
+                                    </button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-bold">
                             <tr>

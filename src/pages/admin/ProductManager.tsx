@@ -188,18 +188,61 @@ export default function ProductManager() {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-800">Gerenciar Produtos</h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">Gerenciar Produtos</h2>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 px-6 py-3 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 transition-all shadow-lg shadow-pink-200"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 transition-all shadow-lg shadow-pink-200"
                 >
                     <Plus size={20} />
                     Novo Produto
                 </button>
             </div>
 
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Mobile Card View */}
+            <div className="grid grid-cols-1 gap-4 md:hidden">
+                {products.length === 0 ? (
+                    <div className="bg-white rounded-3xl p-12 text-center text-gray-400 border border-gray-100">
+                        Nenhum produto cadastrado.
+                    </div>
+                ) : (
+                    products.map((product) => (
+                        <div key={product.id} className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 flex gap-4 items-center">
+                            <div className="w-20 h-20 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200 flex-shrink-0">
+                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="font-bold text-gray-800 truncate">{product.name}</h4>
+                                <p className="text-pink-500 font-bold">
+                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+                                </p>
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                    <span className="px-2 py-0.5 bg-pink-50 text-pink-600 rounded-md text-[10px] font-bold uppercase">{product.category}</span>
+                                    <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[10px] font-bold uppercase">{product.type}</span>
+                                    <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md text-[10px] font-bold uppercase">Tam: {product.size}</span>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <button
+                                    onClick={() => handleOpenModal(product)}
+                                    className="p-2 text-blue-500 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors"
+                                >
+                                    <Edit2 size={18} />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(product.id)}
+                                    className="p-2 text-red-500 bg-red-50 rounded-xl hover:bg-red-100 transition-colors"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-bold">

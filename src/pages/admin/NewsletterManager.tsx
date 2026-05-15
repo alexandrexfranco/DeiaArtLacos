@@ -103,22 +103,22 @@ export default function NewsletterManager() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Marketing WhatsApp</h1>
-                    <p className="text-gray-500">Gerencie seus contatos e envie novidades diretamente.</p>
+                    <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">Marketing WhatsApp</h1>
+                    <p className="text-gray-500 mt-1">Gerencie seus contatos e envie novidades diretamente.</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <button 
                         onClick={() => setIsSharing(!isSharing)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all shadow-sm ${isSharing ? 'bg-pink-600 text-white' : 'bg-white text-pink-500 border border-pink-100 hover:bg-pink-50'}`}
+                        className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-all shadow-sm font-bold ${isSharing ? 'bg-pink-600 text-white' : 'bg-white text-pink-500 border border-pink-100 hover:bg-pink-50'}`}
                     >
                         <Package size={18} />
                         {selectedProduct ? 'Trocar Produto' : 'Selecionar Produto'}
                     </button>
                     <button 
                         onClick={copyAllPhones}
-                        className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors shadow-sm"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-colors shadow-lg shadow-green-100 font-bold"
                     >
                         <Copy size={18} />
                         Copiar Números
@@ -202,7 +202,39 @@ export default function NewsletterManager() {
                     />
                 </div>
 
-                <div className="overflow-x-auto">
+                {/* Mobile Card View */}
+                <div className="grid grid-cols-1 gap-4 md:hidden p-4">
+                    {loading ? (
+                        Array(3).fill(0).map((_, i) => (
+                            <div key={i} className="h-20 bg-gray-50 rounded-xl animate-pulse" />
+                        ))
+                    ) : filteredSubscribers.length > 0 ? (
+                        filteredSubscribers.map((subscriber) => (
+                            <div key={subscriber.id} className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-pink-50 rounded-full flex items-center justify-center text-pink-500 font-bold">
+                                        {subscriber.name?.[0]?.toUpperCase() || '?'}
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-gray-800">{subscriber.name || 'Sem nome'}</p>
+                                        <p className="text-sm text-gray-500 font-mono">{subscriber.phone}</p>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => sendWhatsApp(subscriber)}
+                                    className="p-3 bg-green-50 text-green-600 rounded-xl"
+                                >
+                                    <MessageCircle size={20} />
+                                </button>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="text-center py-10 text-gray-400">Nenhum contato encontrado.</div>
+                    )}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="text-xs uppercase text-gray-400 font-bold border-b border-gray-50">

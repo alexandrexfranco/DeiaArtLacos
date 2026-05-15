@@ -171,20 +171,20 @@ export default function TestimonialManager() {
 
     return (
         <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-bold text-gray-800">Gerenciar Depoimentos</h2>
-                <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">Gerenciar Depoimentos</h2>
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     {testimonials.length === 0 && (
                         <button 
                             onClick={importStaticTestimonials}
-                            className="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-gray-200 transition-colors"
+                            className="w-full sm:w-auto bg-gray-100 text-gray-600 px-6 py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 transition-colors font-bold"
                         >
                             <Download size={20} /> Importar Padrão
                         </button>
                     )}
                     <button 
                         onClick={handleAdd}
-                        className="bg-pink-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-pink-600 transition-colors"
+                        className="w-full sm:w-auto bg-pink-500 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-pink-600 transition-colors font-bold shadow-lg shadow-pink-200"
                     >
                         <Plus size={20} /> Novo Depoimento
                     </button>

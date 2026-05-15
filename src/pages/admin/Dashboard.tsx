@@ -146,24 +146,10 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-8">
-            <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-bold text-gray-800">Visão Geral</h2>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 className="text-2xl lg:text-3xl font-bold text-gray-800">Visão Geral</h2>
 
-                <div className="flex gap-3">
-                    {/* Refresh button */}
-                    <button
-                        onClick={() => {
-                            refreshProducts();
-                            fetchPendingReviews();
-                        }}
-                        disabled={isLoading}
-                        className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 transition-all disabled:opacity-50"
-                        title="Recarregar dados do Supabase"
-                    >
-                        <RefreshCw size={18} className={isLoading ? 'animate-spin' : ''} />
-                        Atualizar
-                    </button>
-
+                <div className="flex flex-wrap gap-3 w-full sm:w-auto">
                     {/* Seed button — only shown when no products */}
                     {products.length === 0 && !isLoading && (
                         <button
@@ -222,47 +208,77 @@ export default function Dashboard() {
                         <p className="text-gray-400">Carregando do Supabase...</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-bold">
-                                <tr>
-                                    <th className="px-6 py-4">Produto</th>
-                                    <th className="px-6 py-4">Categoria</th>
-                                    <th className="px-6 py-4">Preço</th>
-                                    <th className="px-6 py-4">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {products.slice(0, 5).map((product) => (
-                                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden">
-                                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    <>
+                        {/* Mobile Cards View */}
+                        <div className="grid grid-cols-1 divide-y divide-gray-100 md:hidden">
+                            {products.slice(0, 5).map((product) => (
+                                <div key={product.id} className="p-4 flex items-center gap-4">
+                                    <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
+                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-bold text-gray-800 truncate">{product.name}</h4>
+                                        <p className="text-sm text-gray-500">{product.category}</p>
+                                        <div className="flex items-center justify-between mt-1">
+                                            <span className="text-pink-500 font-bold">
+                                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+                                            </span>
+                                            <div className="flex gap-1">
+                                                {product.isNew && <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-[10px] rounded-full font-bold border border-blue-100">Novo</span>}
+                                                {product.isBestSeller && <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] rounded-full font-bold border border-amber-100">Destaque</span>}
                                             </div>
-                                            <span className="font-medium text-gray-700">{product.name}</span>
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">{product.category}</td>
-                                        <td className="px-6 py-4 text-sm font-bold text-gray-700">
-                                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex gap-2">
-                                                {product.isNew && <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full font-bold">Novo</span>}
-                                                {product.isBestSeller && <span className="px-2 py-1 bg-amber-100 text-amber-600 text-xs rounded-full font-bold">Destaque</span>}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {products.length === 0 && (
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {products.length === 0 && (
+                                <div className="p-8 text-center text-gray-400">Nenhum produto.</div>
+                            )}
+                        </div>
+
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-bold">
                                     <tr>
-                                        <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
-                                            Nenhum produto. Clique em "Popular com Exemplos" para começar.
-                                        </td>
+                                        <th className="px-6 py-4">Produto</th>
+                                        <th className="px-6 py-4">Categoria</th>
+                                        <th className="px-6 py-4">Preço</th>
+                                        <th className="px-6 py-4">Status</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {products.slice(0, 5).map((product) => (
+                                        <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4 flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden">
+                                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                                </div>
+                                                <span className="font-medium text-gray-700">{product.name}</span>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-500">{product.category}</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-gray-700">
+                                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex gap-2">
+                                                    {product.isNew && <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full font-bold">Novo</span>}
+                                                    {product.isBestSeller && <span className="px-2 py-1 bg-amber-100 text-amber-600 text-xs rounded-full font-bold">Destaque</span>}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {products.length === 0 && (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                                                Nenhum produto. Clique em "Popular com Exemplos" para começar.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 )}
             </div>
         </div>

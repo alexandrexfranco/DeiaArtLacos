@@ -75,12 +75,12 @@ export function HeroSection() {
                         ✨ Feito à mão com amor
                     </span>
 
-                    <h1 className="text-5xl md:text-7xl font-handwritten text-white drop-shadow-lg mb-6 leading-tight">
+                    <h1 className="text-4xl md:text-7xl font-handwritten text-white drop-shadow-lg mb-6 leading-tight">
                         Realçando a beleza da <br />
-                        <span className="text-pink-500 text-glow">sua princesa</span>
+                        <span className="text-pink-500 text-glow text-shadow-strong">sua princesa</span>
                     </h1>
 
-                    <p className="text-lg md:text-xl text-white/90 font-medium mb-10 max-w-2xl mx-auto drop-shadow-md">
+                    <p className="text-base md:text-xl text-white/90 font-medium mb-10 max-w-2xl mx-auto drop-shadow-md px-2">
                         Laços artesanais exclusivos, criados para transformar momentos simples em memórias inesquecíveis.
                     </p>
 
