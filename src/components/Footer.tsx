@@ -120,6 +120,18 @@ export function Footer() {
                                 }}
                                 className="w-full px-4 py-2 rounded-xl border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
                             />
+                            
+                            <label className="flex items-start gap-2 cursor-pointer group">
+                                <input 
+                                    type="checkbox" 
+                                    required 
+                                    className="mt-1 w-4 h-4 rounded border-pink-300 text-pink-500 focus:ring-pink-500"
+                                />
+                                <span className="text-[11px] text-gray-500 leading-tight">
+                                    Li e concordo com a <Link to="/privacidade" className="text-pink-500 hover:underline">Política de Privacidade</Link>.
+                                </span>
+                            </label>
+
                             <button 
                                 type="submit"
                                 className="w-full bg-pink-400 text-white font-bold py-3 rounded-xl hover:bg-pink-500 transition-colors shadow-sm"

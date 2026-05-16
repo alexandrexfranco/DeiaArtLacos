@@ -160,6 +160,17 @@ export default function Contact() {
                                         placeholder="Olá! Gostaria de saber mais sobre..."
                                     ></textarea>
                                 </div>
+                                
+                                <label className="flex items-center gap-3 cursor-pointer group py-2">
+                                    <input 
+                                        type="checkbox" 
+                                        required 
+                                        className="w-5 h-5 rounded border-gray-200 text-pink-500 focus:ring-pink-400 focus:ring-offset-0 cursor-pointer"
+                                    />
+                                    <span className="text-sm text-gray-500 font-medium">
+                                        Li e concordo com a <a href="/privacidade" target="_blank" className="text-pink-500 hover:underline">Política de Privacidade</a>.
+                                    </span>
+                                </label>
 
                                 <button
                                     type="submit"

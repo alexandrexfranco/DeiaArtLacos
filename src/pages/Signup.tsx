@@ -116,6 +116,19 @@ export default function Signup() {
                                     />
                                 </div>
                             </div>
+                            
+                            <label className="flex items-start gap-3 cursor-pointer group mt-4">
+                                <div className="mt-0.5 relative flex items-center">
+                                    <input 
+                                        type="checkbox" 
+                                        required 
+                                        className="w-5 h-5 rounded border-pink-200 text-pink-500 focus:ring-pink-400 focus:ring-offset-0 cursor-pointer"
+                                    />
+                                </div>
+                                <span className="text-xs text-gray-500 leading-relaxed">
+                                    Li e concordo com a <Link to="/privacidade" className="text-pink-500 font-semibold hover:underline">Política de Privacidade</Link> da Déia Art Laços.
+                                </span>
+                            </label>
 
                             <button
                                 type="submit"

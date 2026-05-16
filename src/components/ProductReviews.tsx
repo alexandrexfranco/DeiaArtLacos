@@ -168,6 +168,17 @@ export function ProductReviews({ productId }: ProductReviewsProps) {
                                     required
                                 />
                             </div>
+                            
+                            <label className="flex items-start gap-2 cursor-pointer group py-1">
+                                <input 
+                                    type="checkbox" 
+                                    required 
+                                    className="mt-0.5 w-4 h-4 rounded border-pink-100 text-pink-500 focus:ring-pink-300 cursor-pointer"
+                                />
+                                <span className="text-[11px] text-gray-500 leading-tight">
+                                    Concordo com a <a href="/privacidade" target="_blank" className="text-pink-500 hover:underline">Política de Privacidade</a>.
+                                </span>
+                            </label>
 
                             <button
                                 type="submit"

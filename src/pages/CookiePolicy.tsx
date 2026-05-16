@@ -34,12 +34,12 @@ export default function CookiePolicy() {
               </div>
               <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
                 <div>
-                  <p><strong>Razão Social:</strong> Déia Art Laços & Acessórios Ltda</p>
+                  <p><strong>Razão Social:</strong> Déia Art Laços</p>
                   <p><strong>CNPJ:</strong> [00.000.000/0000-00]</p>
                 </div>
                 <div>
-                  <p><strong>Sede:</strong> [Cidade] / [UF]</p>
-                  <p><strong>Responsável (DPO):</strong> Andréia [Sobrenome]</p>
+                  <p><strong>Sede:</strong> Cariacica / ES</p>
+                  <p><strong>Responsável (DPO):</strong> Andréa O. S. Franco</p>
                 </div>
               </div>
             </section>
@@ -84,7 +84,7 @@ export default function CookiePolicy() {
                 <ShieldCheck className="w-5 h-5" />
                 <h2 className="text-xl font-bold">3. Categorias e Retenção</h2>
               </div>
-              
+
               <div className="grid gap-6">
                 <div className="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm">
                   <h3 className="font-bold text-gray-800 mb-2">Cookies Essenciais</h3>
@@ -140,7 +140,7 @@ export default function CookiePolicy() {
                 Para qualquer solicitação referente à privacidade, entre em contato diretamente com nossa Encarregada de Dados:
               </p>
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 inline-block">
-                <p className="font-bold">E-mail: [seu-email@dominio.com.br]</p>
+                <p className="font-bold">E-mail: andreafranco.com@gmail.com</p>
                 <p className="text-sm text-pink-100">Assunto: Solicitação LGPD</p>
               </div>
             </section>
