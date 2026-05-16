@@ -274,7 +274,6 @@ export default function Checkout() {
                                             name="cep"
                                             value={formData.cep}
                                             onChange={handleInputChange}
-                                            onBlur={handleBlurCep}
                                             placeholder="00000-000"
                                             maxLength={9}
                                             className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300"
