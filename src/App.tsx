@@ -30,6 +30,7 @@ import { Footer } from '@/components/Footer';
 import { CartSidebar } from '@/components/CartSidebar';
 import { Layout } from '@/components/Layout';
 import ScrollToTop from '@/components/ScrollToTop';
+import { CookieConsent } from '@/components/CookieConsent';
 
 function App() {
     return (
@@ -40,6 +41,7 @@ function App() {
                         <ScrollToTop />
                         <Toaster position="top-right" richColors />
                         <CartSidebar />
+                        <CookieConsent />
                         <div className="min-h-screen flex flex-col">
                             <Routes>
                                 {/* Public Routes wrapped in Layout (Header) */}
