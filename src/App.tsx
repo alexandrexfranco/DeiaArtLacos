@@ -32,6 +32,7 @@ import { CartSidebar } from '@/components/CartSidebar';
 import { Layout } from '@/components/Layout';
 import ScrollToTop from '@/components/ScrollToTop';
 import { CookieConsent } from '@/components/CookieConsent';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 function App() {
     return (
@@ -55,10 +56,10 @@ function App() {
                                     <Route path="/privacidade" element={<PrivacyPolicy />} />
                                     <Route path="/politica-cookies" element={<CookiePolicy />} />
                                     <Route path="/faq" element={<FAQ />} />
-                                    <Route path="/checkout" element={<Checkout />} />
-                                    <Route path="/perfil" element={<Profile />} />
-                                    <Route path="/pedidos" element={<MyOrders />} />
-                                    <Route path="/favoritos" element={<Wishlist />} />
+                                    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                                    <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                                    <Route path="/pedidos" element={<ProtectedRoute><MyOrders /></ProtectedRoute>} />
+                                    <Route path="/favoritos" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
                                     <Route path="/produto/:id" element={<ProductDetails />} />
                                 </Route>
 

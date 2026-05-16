@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mail, Lock, Heart, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -10,6 +10,9 @@ export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const { signIn, isAdmin } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    // Where did the user come from? Default to /perfil
+    const from = (location.state as any)?.from?.pathname || '/perfil';
 
     // Redirect to admin if role is detected
     // This effect runs when 'isAdmin' updates in AuthContext (after DB check)
@@ -38,7 +41,7 @@ export default function Login() {
         try {
             await signIn(email, password);
             console.log('🏁 Processo de login finalizado. Redirecionando...');
-            navigate('/perfil');
+            navigate(from, { replace: true });
         } catch (error) {
             console.error('❌ Erro capturado no handleSubmit:', error);
             // toast.error já é disparado no AuthContext
