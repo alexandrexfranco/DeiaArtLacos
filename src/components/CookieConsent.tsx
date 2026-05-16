@@ -4,7 +4,6 @@ import { Cookie, X, Settings, Check } from 'lucide-react';
 
 interface CookieSettings {
   necessary: boolean;
-  analytics: boolean;
   marketing: boolean;
 }
 
@@ -13,7 +12,6 @@ export function CookieConsent() {
   const [showSettings, setShowSettings] = useState(false);
   const [settings, setSettings] = useState<CookieSettings>({
     necessary: true,
-    analytics: true,
     marketing: false,
   });
 
@@ -27,7 +25,7 @@ export function CookieConsent() {
   }, []);
 
   const handleAcceptAll = () => {
-    const allAccepted = { necessary: true, analytics: true, marketing: true };
+    const allAccepted = { necessary: true, marketing: true };
     saveConsent(allAccepted);
   };
 
@@ -62,7 +60,7 @@ export function CookieConsent() {
                 </div>
                 
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Valorizamos sua privacidade! Usamos cookies para melhorar sua experiência, analisar o tráfego e personalizar ofertas especiais para você. Escolha como deseja prosseguir ou <a href="/politica-cookies" className="text-pink-500 hover:underline font-medium">saiba mais</a>.
+                  Valorizamos sua privacidade! Usamos cookies para melhorar sua experiência e personalizar ofertas especiais para você. Escolha como deseja prosseguir ou <a href="/politica-cookies" className="text-pink-500 hover:underline font-medium">saiba mais</a>.
                 </p>
 
                 <div className="flex flex-col gap-2 pt-2">
@@ -80,7 +78,7 @@ export function CookieConsent() {
                       <Settings className="w-4 h-4" /> Configurar
                     </button>
                     <button
-                      onClick={() => saveConsent({ necessary: true, analytics: false, marketing: false })}
+                      onClick={() => saveConsent({ necessary: true, marketing: false })}
                       className="flex-1 py-2.5 bg-white hover:bg-gray-50 text-gray-500 font-medium rounded-xl text-sm border border-gray-100 transition-all"
                     >
                       Recusar
@@ -110,24 +108,6 @@ export function CookieConsent() {
                       <p className="text-xs text-gray-500">Essenciais para o site funcionar corretamente.</p>
                     </div>
                   </div>
-
-                  {/* Analíticos */}
-                  <label className="flex items-start gap-3 p-3 rounded-2xl bg-white border border-pink-50 cursor-pointer hover:bg-pink-50/30 transition-colors">
-                    <div className="mt-0.5 relative">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={settings.analytics}
-                        onChange={(e) => setSettings({ ...settings, analytics: e.target.checked })}
-                      />
-                      <div className="w-5 h-5 border-2 border-pink-200 rounded peer-checked:bg-pink-500 peer-checked:border-pink-500 transition-all"></div>
-                      <Check className="w-3.5 h-3.5 text-white absolute top-0.5 left-0.5 opacity-0 peer-checked:opacity-100 transition-opacity" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-800">Analíticos</p>
-                      <p className="text-xs text-gray-500">Nos ajudam a entender como você usa o site.</p>
-                    </div>
-                  </label>
 
                   {/* Marketing */}
                   <label className="flex items-start gap-3 p-3 rounded-2xl bg-white border border-pink-50 cursor-pointer hover:bg-pink-50/30 transition-colors">

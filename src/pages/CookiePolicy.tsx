@@ -61,19 +61,9 @@ export default function CookiePolicy() {
                   </div>
                 </div>
 
-                {/* Analytics */}
-                <div className="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm">
-                  <h3 className="font-bold text-gray-800 mb-2">3. Cookies Analíticos</h3>
-                  <p className="text-sm text-gray-600 mb-4">Ajudam-nos a entender como os visitantes interagem com o site, coletando e relatando informações de forma anônima.</p>
-                  <div className="flex flex-wrap gap-4 text-xs font-medium text-gray-500">
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Retenção: 2 anos</span>
-                    <span className="flex items-center gap-1"><Share2 className="w-3 h-3" /> Terceiros: Google Analytics</span>
-                  </div>
-                </div>
-
                 {/* Marketing */}
                 <div className="p-6 rounded-3xl bg-white border border-gray-100 shadow-sm">
-                  <h3 className="font-bold text-gray-800 mb-2">4. Cookies de Marketing</h3>
+                  <h3 className="font-bold text-gray-800 mb-2">3. Cookies de Marketing</h3>
                   <p className="text-sm text-gray-600 mb-4">Usados para rastrear visitantes em sites para que os editores possam exibir anúncios relevantes e envolventes.</p>
                   <div className="flex flex-wrap gap-4 text-xs font-medium text-gray-500">
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Retenção: 1 ano</span>
