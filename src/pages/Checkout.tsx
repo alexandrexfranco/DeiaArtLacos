@@ -28,7 +28,7 @@ export default function Checkout() {
         if (user) {
             setFormData(prev => ({
                 ...prev,
-                name: user.displayName || prev.name,
+                name: user.display_name || prev.name,
                 phone: user.whatsapp || prev.phone,
                 cep: user.cep || prev.cep,
                 address: user.endereco || prev.address,
@@ -170,7 +170,7 @@ export default function Checkout() {
 
             // 4.1 Update User Profile with these details for next time
             await updateUserProfile({
-                displayName: formData.name,
+                display_name: formData.name,
                 whatsapp: formData.phone,
                 cep: formData.cep,
                 endereco: formData.address,

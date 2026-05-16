@@ -9,6 +9,13 @@ export interface AppUser {
     role: 'admin' | 'customer';
     phone?: string;
     address?: string;
+    whatsapp?: string;
+    cep?: string;
+    endereco?: string;
+    numero?: string;
+    complemento?: string;
+    cidade?: string;
+    estado?: string;
     created_at?: string;
 }
 
