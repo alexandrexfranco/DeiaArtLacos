@@ -17,29 +17,50 @@ export default function Checkout() {
         cep: '',
         address: '',
         number: '',
-        complement: '',
+        complement: 'Casa',
         city: '',
-        state: '',
+        state: 'ES',
         paymentMethod: 'pix'
     });
 
-    // Pre-fill from profile
+    // Pre-fill from profile (email NOT pre-filled to avoid showing store owner's email)
     useEffect(() => {
         if (user) {
             setFormData(prev => ({
                 ...prev,
                 name: user.displayName || prev.name,
-                email: user.email || prev.email,
                 phone: user.whatsapp || prev.phone,
                 cep: user.cep || prev.cep,
                 address: user.endereco || prev.address,
                 number: user.numero || prev.number,
-                complement: user.complemento || prev.complement,
+                complement: user.complemento || 'Casa',
                 city: user.cidade || prev.city,
-                state: user.estado || prev.state,
+                state: user.estado || 'ES',
             }));
         }
     }, [user]);
+
+    // Fetch address from ViaCEP API
+    const fetchCep = async (cep: string) => {
+        try {
+            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const data = await response.json();
+            if (data.erro) {
+                toast.error('CEP não encontrado.');
+                return;
+            }
+            setFormData(prev => ({
+                ...prev,
+                address: data.logradouro || prev.address,
+                city: data.localidade || prev.city,
+                state: data.uf || prev.state,
+            }));
+            toast.success('Endereço preenchido automaticamente! ✨');
+        } catch (error) {
+            console.error(error);
+            toast.error('Erro ao buscar CEP.');
+        }
+    };
 
     const maskPhone = (value: string) => {
         const numbers = value.replace(/\D/g, '');
@@ -58,37 +79,15 @@ export default function Checkout() {
         if (name === 'phone') {
             setFormData(prev => ({ ...prev, [name]: maskPhone(value) }));
         } else if (name === 'cep') {
-            const cep = value.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2').substring(0, 9);
+            const digits = value.replace(/\D/g, '');
+            const cep = digits.replace(/^(\d{5})(\d)/, '$1-$2').substring(0, 9);
             setFormData(prev => ({ ...prev, [name]: cep }));
+            // Auto-fetch address when 8 digits are entered
+            if (digits.length === 8) {
+                fetchCep(digits);
+            }
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
-        }
-    };
-
-    const handleBlurCep = async (e: React.FocusEvent<HTMLInputElement>) => {
-        const cep = e.target.value.replace(/\D/g, '');
-        if (cep.length !== 8) return;
-
-        try {
-            const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-            const data = await response.json();
-
-            if (data.erro) {
-                toast.error("CEP não encontrado.");
-                return;
-            }
-
-            setFormData(prev => ({
-                ...prev,
-                address: data.logradouro,
-                city: data.localidade,
-                state: data.uf,
-                // Keep existing numbers/complements if any, typically user fills these
-            }));
-            toast.success("Endereço preenchido!");
-        } catch (error) {
-            console.error(error);
-            toast.error("Erro ao buscar CEP.");
         }
     };
 
@@ -319,23 +318,58 @@ export default function Checkout() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Complemento</label>
-                                        <input
-                                            type="text"
+                                        <select
                                             name="complement"
                                             value={formData.complement}
                                             onChange={handleInputChange}
-                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300"
-                                        />
+                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                                        >
+                                            <option value="Casa">Casa</option>
+                                            <option value="Apartamento">Apartamento</option>
+                                            <option value="Loja">Loja</option>
+                                            <option value="Sala">Sala</option>
+                                            <option value="Sobrado">Sobrado</option>
+                                            <option value="Sítio">Sítio</option>
+                                            <option value="Chácara">Chácara</option>
+                                            <option value="S/N">Sem complemento</option>
+                                        </select>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                                        <input
-                                            type="text"
+                                        <select
                                             name="state"
                                             value={formData.state}
                                             onChange={handleInputChange}
-                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300"
-                                        />
+                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                                        >
+                                            <option value="AC">AC – Acre</option>
+                                            <option value="AL">AL – Alagoas</option>
+                                            <option value="AP">AP – Amapá</option>
+                                            <option value="AM">AM – Amazonas</option>
+                                            <option value="BA">BA – Bahia</option>
+                                            <option value="CE">CE – Ceará</option>
+                                            <option value="DF">DF – Distrito Federal</option>
+                                            <option value="ES">ES – Espírito Santo</option>
+                                            <option value="GO">GO – Goiás</option>
+                                            <option value="MA">MA – Maranhão</option>
+                                            <option value="MT">MT – Mato Grosso</option>
+                                            <option value="MS">MS – Mato Grosso do Sul</option>
+                                            <option value="MG">MG – Minas Gerais</option>
+                                            <option value="PA">PA – Pará</option>
+                                            <option value="PB">PB – Paraíba</option>
+                                            <option value="PR">PR – Paraná</option>
+                                            <option value="PE">PE – Pernambuco</option>
+                                            <option value="PI">PI – Piauí</option>
+                                            <option value="RJ">RJ – Rio de Janeiro</option>
+                                            <option value="RN">RN – Rio Grande do Norte</option>
+                                            <option value="RS">RS – Rio Grande do Sul</option>
+                                            <option value="RO">RO – Rondônia</option>
+                                            <option value="RR">RR – Roraima</option>
+                                            <option value="SC">SC – Santa Catarina</option>
+                                            <option value="SP">SP – São Paulo</option>
+                                            <option value="SE">SE – Sergipe</option>
+                                            <option value="TO">TO – Tocantins</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -426,7 +460,7 @@ export default function Checkout() {
 
                             <button
                                 onClick={handleSubmit}
-                                disabled={items.length === 0 || !formData.name || !formData.phone || !formData.address || !formData.number || !formData.city || !formData.state || formData.cep.replace(/\D/g, '').length !== 8}
+                                disabled={items.length === 0 || !formData.name || !formData.phone || !formData.address || !formData.city || !formData.state}
                                 className="w-full mt-8 py-4 bg-green-500 text-white font-bold rounded-2xl hover:bg-green-600 transition-all shadow-lg shadow-green-200 hover:shadow-green-300 flex items-center justify-center gap-2 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
                             >
                                 <span className="text-lg">Finalizar Pedido no WhatsApp</span>
