@@ -13,6 +13,7 @@ export interface AppUser {
     cep?: string;
     endereco?: string;
     numero?: string;
+    bairro?: string;
     complemento?: string;
     cidade?: string;
     estado?: string;

@@ -17,6 +17,7 @@ export default function Checkout() {
         cep: '',
         address: '',
         number: '',
+        bairro: '',
         complement: 'Casa',
         city: '',
         state: 'ES',
@@ -33,6 +34,7 @@ export default function Checkout() {
                 cep: user.cep || prev.cep,
                 address: user.endereco || prev.address,
                 number: user.numero || prev.number,
+                bairro: user.bairro || prev.bairro,
                 complement: user.complemento || 'Casa',
                 city: user.cidade || prev.city,
                 state: user.estado || 'ES',
@@ -52,6 +54,7 @@ export default function Checkout() {
             setFormData(prev => ({
                 ...prev,
                 address: data.logradouro || prev.address,
+                bairro: data.bairro || prev.bairro,
                 city: data.localidade || prev.city,
                 state: data.uf || prev.state,
             }));
@@ -125,6 +128,7 @@ export default function Checkout() {
         message += `\n💰 *Total:* ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}\n\n`;
         message += `📍 *Endereço de Entrega:*\n`;
         message += `${formData.address}, ${formData.number}\n`;
+        if (formData.bairro) message += `Bairro: ${formData.bairro}\n`;
         if (formData.complement) message += `${formData.complement}\n`;
         message += `${formData.city} - ${formData.state}\n`;
         message += `CEP: ${formData.cep}\n\n`;
@@ -175,6 +179,7 @@ export default function Checkout() {
                 cep: formData.cep,
                 endereco: formData.address,
                 numero: formData.number,
+                bairro: formData.bairro,
                 complemento: formData.complement,
                 cidade: formData.city,
                 estado: formData.state
@@ -313,6 +318,17 @@ export default function Checkout() {
                                             className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300"
                                         />
                                     </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Bairro</label>
+                                    <input
+                                        type="text"
+                                        name="bairro"
+                                        value={formData.bairro}
+                                        onChange={handleInputChange}
+                                        placeholder="Preenchido automaticamente pelo CEP"
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300"
+                                    />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
