@@ -24,12 +24,13 @@ export default function Checkout() {
         paymentMethod: 'pix'
     });
 
-    // Pre-fill from profile (email NOT pre-filled to avoid showing store owner's email)
+    // Pre-fill from profile
     useEffect(() => {
         if (user) {
             setFormData(prev => ({
                 ...prev,
                 name: user.display_name || prev.name,
+                email: user.email || prev.email,
                 phone: user.whatsapp || prev.phone,
                 cep: user.cep || prev.cep,
                 address: user.endereco || prev.address,
