@@ -475,7 +475,17 @@ export default function Checkout() {
 
                             <button
                                 onClick={handleSubmit}
-                                disabled={items.length === 0 || !formData.name || !formData.phone || !formData.address || !formData.city || !formData.state}
+                                disabled={
+                                    items.length === 0 ||
+                                    !formData.name ||
+                                    !formData.phone ||
+                                    formData.cep.replace(/\D/g, '').length !== 8 ||
+                                    !formData.address ||
+                                    !formData.number ||
+                                    !formData.bairro ||
+                                    !formData.city ||
+                                    !formData.state
+                                }
                                 className="w-full mt-8 py-4 bg-green-500 text-white font-bold rounded-2xl hover:bg-green-600 transition-all shadow-lg shadow-green-200 hover:shadow-green-300 flex items-center justify-center gap-2 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
                             >
                                 <span className="text-lg">Finalizar Pedido no WhatsApp</span>
