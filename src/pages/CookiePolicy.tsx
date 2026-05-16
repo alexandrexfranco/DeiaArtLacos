@@ -229,11 +229,13 @@ export default function CookiePolicy() {
             </section>
 
             {/* 7. Alterações */}
-            <section className="p-10 rounded-[2rem] bg-gradient-to-br from-pink-500 to-pink-600 text-white relative overflow-hidden">
-              <RefreshCcw className="absolute -bottom-4 -right-4 w-32 h-32 opacity-10" />
-              <h2 className="text-2xl font-bold mb-4 relative z-10">7. Alterações desta Política</h2>
-              <p className="text-pink-100 leading-relaxed text-sm relative z-10">
-                Esta Política poderá ser atualizada periodicamente para refletir alterações legais ou tecnológicas. Recomendamos a consulta regular desta página.
+            <section className="p-10 rounded-[2rem] bg-gradient-to-br from-pink-500 to-pink-600 text-white relative overflow-hidden shadow-lg shadow-pink-200">
+              <RefreshCcw className="absolute -top-4 -right-4 w-32 h-32 opacity-10 rotate-12" />
+              <h2 className="text-2xl font-bold mb-4 relative z-10 text-white drop-shadow-sm">
+                7. Alterações desta Política
+              </h2>
+              <p className="text-white/90 leading-relaxed text-sm relative z-10 font-medium">
+                Esta Política poderá ser atualizada periodicamente para refletir alterações legais, tecnológicas ou novos serviços. Recomendamos a consulta regular desta página para se manter informada.
               </p>
             </section>
 
