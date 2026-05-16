@@ -184,17 +184,17 @@ export default function ReviewManager() {
                 </div>
 
                 {/* Desktop Table View */}
-                <div className="hidden lg:block overflow-x-auto">
-                    <table className="w-full text-left">
+                <div className="hidden lg:block">
+                    <table className="w-full text-left table-fixed">
                         <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-bold">
                             <tr>
-                                <th className="px-6 py-4 text-center">Status</th>
-                                <th className="px-6 py-4">Data</th>
-                                <th className="px-6 py-4">Cliente</th>
-                                <th className="px-6 py-4">Produto</th>
-                                <th className="px-6 py-4">Comentário</th>
-                                <th className="px-6 py-4">Nota</th>
-                                <th className="px-6 py-4 text-right">Ações</th>
+                                <th className="px-3 py-4 text-center w-28">Status</th>
+                                <th className="px-3 py-4 w-24">Data</th>
+                                <th className="px-3 py-4 w-36">Cliente</th>
+                                <th className="px-3 py-4 w-40">Produto</th>
+                                <th className="px-3 py-4">Comentário</th>
+                                <th className="px-3 py-4 w-24">Nota</th>
+                                <th className="px-3 py-4 text-right w-24">Ações</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -207,7 +207,7 @@ export default function ReviewManager() {
                             ) : (
                                 reviews.map((review) => (
                                     <tr key={review.id} className={`hover:bg-gray-50 transition-colors ${!review.is_approved ? 'bg-amber-50/20' : ''}`}>
-                                        <td className="px-6 py-4 text-center">
+                                        <td className="px-3 py-4 text-center">
                                             {review.is_approved ? (
                                                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700">
                                                     <CheckCircle size={12} /> Aprovada
@@ -218,25 +218,25 @@ export default function ReviewManager() {
                                                 </span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                        <td className="px-3 py-4 text-sm text-gray-500">
                                             {new Date(review.created_at).toLocaleDateString('pt-BR')}
                                         </td>
-                                        <td className="px-6 py-4 font-bold text-gray-800">{review.user_name}</td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-3 py-4 font-bold text-gray-800 truncate">{review.user_name}</td>
+                                        <td className="px-3 py-4">
                                             <Link 
                                                 to={`/produto/${review.product_id}`} 
-                                                className="text-pink-500 hover:underline flex items-center gap-1 font-medium"
+                                                className="text-pink-500 hover:underline flex items-center gap-1 font-medium truncate"
                                                 target="_blank"
                                             >
-                                                {review.products?.name} <ExternalLink size={12} />
+                                                <span className="truncate">{review.products?.name}</span> <ExternalLink size={12} className="flex-shrink-0" />
                                             </Link>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-gray-600 text-sm max-w-xs truncate" title={review.comment}>
+                                        <td className="px-3 py-4">
+                                            <p className="text-gray-600 text-sm truncate" title={review.comment}>
                                                 {review.comment}
                                             </p>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-3 py-4">
                                             <div className="flex text-amber-400">
                                                 {[...Array(5)].map((_, i) => (
                                                     <Star 
@@ -248,7 +248,7 @@ export default function ReviewManager() {
                                                 ))}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-3 py-4 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button
                                                     onClick={() => handleToggleApproval(review)}
