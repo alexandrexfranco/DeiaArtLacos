@@ -175,13 +175,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const signOut = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            toast.error('Erro ao sair.');
-            throw error;
+        try {
+            await supabase.auth.signOut();
+        } catch (err) {
+            // Network failure during sign out — ignore, we still clear local state
+            console.warn('⚠️ SignOut request failed (possivelmente por rede), limpando estado local...', err);
+        } finally {
+            // Always clear local state regardless of network result
+            setUser(null);
+            toast.success('Sessão encerrada.');
         }
-        setUser(null);
-        toast.success('Sessão encerrada.');
     };
 
     const updateUserProfile = async (data: Partial<AppUser>) => {
