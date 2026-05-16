@@ -35,6 +35,27 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const OWNER_EMAIL = 'alexandrefranco.com@gmail.com';
 
+/** Translates Supabase auth error messages to friendly Portuguese */
+function translateAuthError(message: string): string {
+    if (!message) return 'Erro inesperado. Tente novamente.';
+    const m = message.toLowerCase();
+    if (m.includes('user already registered') || m.includes('already registered'))
+        return 'Este e-mail já está cadastrado. Faça login ou recupere sua senha.';
+    if (m.includes('invalid login credentials') || m.includes('invalid credentials'))
+        return 'E-mail ou senha incorretos.';
+    if (m.includes('email not confirmed'))
+        return 'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.';
+    if (m.includes('password should be') || m.includes('weak password'))
+        return 'A senha deve ter no mínimo 6 caracteres.';
+    if (m.includes('rate limit') || m.includes('too many requests') || m.includes('429'))
+        return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+    if (m.includes('500') || m.includes('internal server') || m.includes('unexpected_failure'))
+        return 'Serviço temporáriamente indisponível. Tente novamente em instantes.';
+    if (m.includes('network') || m.includes('failed to fetch') || m.includes('connection'))
+        return 'Problema de conexão. Verifique sua internet e tente novamente.';
+    return message;
+}
+
 export function useAuth() {
     const context = useContext(AuthContext);
     if (!context) {
@@ -145,33 +166,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (error) {
                 console.error('❌ Erro no signInWithPassword:', error.message);
-                toast.error(error.message);
-                throw error;
+                const msg = translateAuthError(error.message);
+                toast.error(msg);
+                throw new Error(msg);
             }
 
             console.log('✅ Auth: Login bem-sucedido via Supabase', data?.user?.id);
-            toast.success('Bem-vindo(a) de volta!');
+            toast.success('Bem-vindo(a) de volta! 🎀');
         } catch (err: any) {
             console.error('❌ Falha na autenticação:', err.message || err);
-            toast.error(err.message || 'Erro ao conectar com o servidor.');
+            const msg = translateAuthError(err.message || '');
+            if (!err.message?.startsWith(msg)) toast.error(msg);
             throw err;
         }
     };
 
     const signUp = async (email: string, password: string, name: string) => {
-        const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: { full_name: name }
-            }
-        });
+        try {
+            const { error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { full_name: name }
+                }
+            });
 
-        if (error) {
-            toast.error(error.message);
-            throw error;
+            if (error) {
+                const msg = translateAuthError(error.message);
+                toast.error(msg);
+                throw new Error(msg);
+            }
+            toast.success('Conta criada com sucesso! 🎀');
+        } catch (err: any) {
+            const msg = translateAuthError(err.message || '');
+            // Only show toast if not already shown above
+            if (!err.message?.startsWith(msg)) toast.error(msg);
+            throw err;
         }
-        toast.success(`Conta criada com sucesso!`);
     };
 
     const signOut = async () => {
