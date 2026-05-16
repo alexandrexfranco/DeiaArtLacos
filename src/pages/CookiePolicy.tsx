@@ -106,28 +106,53 @@ export default function CookiePolicy() {
               </div>
             </section>
 
-            {/* 4. Direitos do Titular */}
+            {/* 4. Direitos do Titular dos Dados */}
             <section>
               <div className="flex items-center gap-3 mb-6 text-pink-600">
                 <Info className="w-5 h-5" />
-                <h2 className="text-xl font-bold">4. Direitos do Titular dos Dados</h2>
+                <h2 className="text-xl font-bold">4. Seus Direitos como Titular</h2>
               </div>
-              <p className="text-gray-600 mb-4 leading-relaxed text-sm">Você tem controle total sobre seus dados. Conforme o Art. 18 da LGPD, você pode nos solicitar:</p>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <p className="text-gray-600 mb-8 leading-relaxed text-sm">
+                A LGPD garante a você total controle sobre suas informações. Na Déia Art Laços, você pode exercer os seguintes direitos:
+              </p>
+              
+              <div className="grid gap-4">
                 {[
-                  'Confirmação da existência de tratamento',
-                  'Acesso aos seus dados pessoais',
-                  'Correção de dados incompletos ou inexatos',
-                  'Exclusão de dados (quando possível por lei)',
-                  'Anonimização ou bloqueio de dados desnecessários',
-                  'Portabilidade dos dados a outro fornecedor',
-                  'Revogação do consentimento a qualquer momento'
-                ].map((direito, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-gray-600 bg-white p-3 rounded-xl border border-gray-50">
-                    <div className="w-1.5 h-1.5 rounded-full bg-pink-400" /> {direito}
-                  </li>
+                  {
+                    title: 'Confirmação e Acesso',
+                    desc: 'Você pode confirmar se tratamos seus dados e solicitar uma cópia de todas as informações que temos sobre você.'
+                  },
+                  {
+                    title: 'Correção',
+                    desc: 'Solicite a alteração de dados que estejam incompletos, inexatos ou desatualizados em nosso sistema.'
+                  },
+                  {
+                    title: 'Anonimização ou Bloqueio',
+                    desc: 'Caso identifique dados desnecessários ou tratados em desconformidade, pode solicitar que sejam anonimizados ou bloqueados.'
+                  },
+                  {
+                    title: 'Exclusão',
+                    desc: 'Você tem o direito de solicitar a exclusão de dados pessoais tratados com base no seu consentimento.'
+                  },
+                  {
+                    title: 'Portabilidade',
+                    desc: 'Pode solicitar a transferência dos seus dados para outro fornecedor de serviços ou produtos.'
+                  },
+                  {
+                    title: 'Informação sobre Compartilhamento',
+                    desc: 'Saiba exatamente com quais entidades públicas ou privadas compartilhamos seus dados.'
+                  },
+                  {
+                    title: 'Revogação do Consentimento',
+                    desc: 'Você pode retirar seu consentimento a qualquer momento, o que interromperá o tratamento de dados baseados nele.'
+                  }
+                ].map((item, i) => (
+                  <div key={i} className="p-5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-pink-200 transition-colors">
+                    <h3 className="font-bold text-gray-800 text-sm mb-1">{item.title}</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </section>
 
             {/* 5. Contato */}
