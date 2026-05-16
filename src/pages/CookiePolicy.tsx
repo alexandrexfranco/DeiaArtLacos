@@ -26,6 +26,22 @@ export default function CookiePolicy() {
           </p>
 
           <div className="space-y-12">
+            {/* O que são cookies */}
+            <section>
+              <div className="flex items-center gap-3 mb-6 text-pink-600">
+                <Info className="w-5 h-5" />
+                <h2 className="text-xl font-bold">O que são Cookies?</h2>
+              </div>
+              <div className="bg-pink-50/50 p-6 rounded-3xl border border-pink-100">
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  Cookies são pequenos arquivos de texto que são armazenados no seu computador ou dispositivo móvel quando você visita um site. Eles são amplamente utilizados para fazer os sites funcionarem, ou funcionarem de forma mais eficiente, bem como para fornecer informações aos proprietários do site.
+                </p>
+                <p className="text-sm text-gray-600 leading-relaxed mt-4">
+                  No nosso caso, eles ajudam a <strong>Déia Art Laços</strong> a lembrar de você, manter seus laços favoritos no carrinho e garantir que sua experiência de navegação seja segura e personalizada.
+                </p>
+              </div>
+            </section>
+
             {/* 1. Identificação Jurídica */}
             <section className="p-6 rounded-3xl bg-gray-50 border border-gray-100">
               <div className="flex items-center gap-3 mb-4 text-gray-800">
