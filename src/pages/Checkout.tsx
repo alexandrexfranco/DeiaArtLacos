@@ -120,6 +120,7 @@ export default function Checkout() {
 
         items.forEach(item => {
             message += `▫️ ${item.quantity}x ${item.name} (${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price)})\n`;
+            message += `🔗 ${window.location.origin}/produto/${item.id}\n`;
         });
 
         message += `\n💰 *Total:* ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}\n\n`;
