@@ -18,8 +18,10 @@ export function CookieConsent() {
   });
 
   useEffect(() => {
+    console.log('🍪 CookieConsent: Verificando consentimento...');
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) {
+      console.log('🍪 CookieConsent: Consentimento não encontrado, exibindo banner.');
       setIsVisible(true);
     }
   }, []);
@@ -47,7 +49,7 @@ export function CookieConsent() {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:max-w-md z-[100]"
+          className="fixed bottom-6 left-6 right-6 md:left-auto md:right-8 md:max-w-md z-[9999]"
         >
           <div className="glass-card bg-white/95 backdrop-blur-xl rounded-3xl p-6 border border-pink-100 shadow-2xl shadow-pink-200/50">
             {!showSettings ? (
