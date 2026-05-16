@@ -36,6 +36,7 @@ export function Footer() {
                             <li><Link to="/sobre" className="hover:text-pink-500 transition-colors">Quem Somos</Link></li>
                             <li><Link to="/politica-troca" className="hover:text-pink-500 transition-colors">Trocas e Devoluções</Link></li>
                             <li><Link to="/privacidade" className="hover:text-pink-500 transition-colors">Política de Privacidade</Link></li>
+                            <li><Link to="/politica-cookies" className="hover:text-pink-500 transition-colors">Política de Cookies</Link></li>
                             <li><Link to="/faq" className="hover:text-pink-500 transition-colors">Dúvidas Frequentes</Link></li>
                         </ul>
                     </div>

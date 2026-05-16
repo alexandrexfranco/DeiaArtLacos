@@ -62,7 +62,7 @@ export function CookieConsent() {
                 </div>
                 
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  Valorizamos sua privacidade! Usamos cookies para melhorar sua experiência, analisar o tráfego e personalizar ofertas especiais para você. Escolha como deseja prosseguir:
+                  Valorizamos sua privacidade! Usamos cookies para melhorar sua experiência, analisar o tráfego e personalizar ofertas especiais para você. Escolha como deseja prosseguir ou <a href="/politica-cookies" className="text-pink-500 hover:underline font-medium">saiba mais</a>.
                 </p>
 
                 <div className="flex flex-col gap-2 pt-2">
@@ -147,6 +147,10 @@ export function CookieConsent() {
                     </div>
                   </label>
                 </div>
+
+                <p className="text-[10px] text-gray-400 text-center leading-tight">
+                  Ao salvar, você concorda com nossa <a href="/politica-cookies" className="underline hover:text-gray-600">Política de Cookies</a>.
+                </p>
 
                 <button
                   onClick={handleSaveSettings}
