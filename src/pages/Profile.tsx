@@ -43,6 +43,7 @@ export default function Profile() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'address' | 'favorites'>('overview');
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
         if (!user) {
@@ -75,8 +76,12 @@ export default function Profile() {
     }, [user]);
 
     useEffect(() => {
-        if (!loading && !user) navigate('/login');
-        if (user) {
+        if (!loading && !user) {
+            setIsInitialized(false);
+            navigate('/login');
+            return;
+        }
+        if (user && !isInitialized) {
             setNewName(user.displayName || '');
             setEditData({
                 whatsapp: user.whatsapp || '',
@@ -88,8 +93,9 @@ export default function Profile() {
                 cidade: user.cidade || '',
                 estado: user.estado || ''
             });
+            setIsInitialized(true);
         }
-    }, [user, loading, navigate]);
+    }, [user, loading, navigate, isInitialized]);
 
     if (loading) {
         return (
