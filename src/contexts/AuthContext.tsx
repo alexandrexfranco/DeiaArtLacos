@@ -82,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setLoading(false);
             } else if (session?.user) {
                 // Ao logar ou mudar estado, iniciamos a busca do perfil
+                setLoading(true);
                 fetchProfile(session.user);
             } else {
                 setLoading(false);

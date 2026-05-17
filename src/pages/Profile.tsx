@@ -78,7 +78,7 @@ export default function Profile() {
     useEffect(() => {
         if (!loading && !user) {
             setIsInitialized(false);
-            navigate('/login');
+            navigate('/');
             return;
         }
         if (user && !isInitialized) {

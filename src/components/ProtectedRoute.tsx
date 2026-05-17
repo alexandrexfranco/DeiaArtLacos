@@ -21,7 +21,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     if (!user) {
         // Redirect to /login and remember where the user wanted to go
-        return <Navigate to="/login" state={{ from: location }} replace />;
+        return <Navigate to="/" state={{ from: location }} replace />;
     }
 
     return <>{children}</>;
