@@ -35,7 +35,8 @@ export default function Profile() {
         cep: '',
         endereco: '',
         numero: '',
-        complemento: '',
+        bairro: '',
+        complemento: 'Casa',
         cidade: '',
         estado: ''
     });
@@ -82,7 +83,8 @@ export default function Profile() {
                 cep: user.cep || '',
                 endereco: user.endereco || '',
                 numero: user.numero || '',
-                complemento: user.complemento || '',
+                bairro: user.bairro || '',
+                complemento: user.complemento || 'Casa',
                 cidade: user.cidade || '',
                 estado: user.estado || ''
             });
@@ -140,7 +142,7 @@ export default function Profile() {
         return value.substring(0, 15);
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         if (name === 'whatsapp') {
             setEditData(prev => ({ ...prev, [name]: maskPhone(value) }));
@@ -163,9 +165,10 @@ export default function Profile() {
 
             setEditData(prev => ({
                 ...prev,
-                endereco: data.logradouro,
-                cidade: data.localidade,
-                estado: data.uf,
+                endereco: data.logradouro || prev.endereco,
+                bairro: data.bairro || prev.bairro,
+                cidade: data.localidade || prev.cidade,
+                estado: data.uf || prev.estado,
             }));
         } catch (error) {
             console.error(error);
@@ -492,35 +495,54 @@ export default function Profile() {
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
-                                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Complemento</label>
+                                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Bairro</label>
                                                     <input
                                                         type="text"
-                                                        name="complemento"
-                                                        value={editData.complemento}
+                                                        name="bairro"
+                                                        value={editData.bairro}
                                                         onChange={handleInputChange}
-                                                        placeholder="Apto, Bloco..."
+                                                        placeholder="Bairro"
                                                         className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-pink-300 outline-none transition-all"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Cidade/UF</label>
-                                                    <div className="flex gap-2">
-                                                        <input
-                                                            type="text"
-                                                            name="cidade"
-                                                            value={editData.cidade}
-                                                            onChange={handleInputChange}
-                                                            className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-pink-300 outline-none transition-all"
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            name="estado"
-                                                            value={editData.estado}
-                                                            onChange={handleInputChange}
-                                                            maxLength={2}
-                                                            className="w-16 px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-pink-300 outline-none transition-all text-center"
-                                                        />
-                                                    </div>
+                                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Complemento</label>
+                                                    <select
+                                                        name="complemento"
+                                                        value={editData.complemento || 'Casa'}
+                                                        onChange={handleInputChange}
+                                                        className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-pink-300 outline-none transition-all bg-white"
+                                                    >
+                                                        <option value="Casa">Casa</option>
+                                                        <option value="Apartamento">Apartamento</option>
+                                                        <option value="Loja">Loja</option>
+                                                        <option value="Sala">Sala</option>
+                                                        <option value="Sobrado">Sobrado</option>
+                                                        <option value="Sítio">Sítio</option>
+                                                        <option value="Chácara">Chácara</option>
+                                                        <option value="S/N">Sem complemento</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Cidade/UF</label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        name="cidade"
+                                                        value={editData.cidade}
+                                                        onChange={handleInputChange}
+                                                        className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-pink-300 outline-none transition-all"
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        name="estado"
+                                                        value={editData.estado}
+                                                        onChange={handleInputChange}
+                                                        maxLength={2}
+                                                        className="w-16 px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-pink-300 outline-none transition-all text-center uppercase"
+                                                    />
                                                 </div>
                                             </div>
 
