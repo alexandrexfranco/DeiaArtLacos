@@ -6,6 +6,7 @@ export interface AppUser {
     uid: string;
     email: string;
     display_name: string;
+    displayName?: string; // Campo de compatibilidade com partes legadas do frontend
     role: 'admin' | 'customer';
     phone?: string;
     address?: string;
@@ -111,7 +112,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
             if (profile) {
                 console.log('✅ Perfil carregado com sucesso do banco');
-                setUser(profile as any);
+                setUser({
+                    ...profile,
+                    displayName: profile.display_name
+                } as AppUser);
             } else {
                 console.log('🆕 Perfil não encontrado, criando novo no banco...');
                 const isOwner = supabaseUser.email?.toLowerCase() === OWNER_EMAIL;
@@ -125,19 +129,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 const { error: insError } = await supabase.from('users').insert(newProfile);
                 if (insError) throw insError;
                 
-                setUser(newProfile as any);
+                setUser({
+                    ...newProfile,
+                    displayName: newProfile.display_name
+                } as AppUser);
                 console.log('✅ Novo perfil criado e carregado');
             }
         } catch (err) {
             console.error('⚠️ Falha ao obter dados do banco:', err);
             // Fallback de segurança apenas se o banco falhar criticamente
             const isOwner = supabaseUser.email?.toLowerCase() === OWNER_EMAIL;
-            setUser({
+            const fallbackProfile = {
                 uid: supabaseUser.id,
                 email: supabaseUser.email || '',
                 display_name: supabaseUser.user_metadata?.full_name || 'Usuário',
                 role: isOwner ? 'admin' : 'customer'
-            } as any);
+            };
+            setUser({
+                ...fallbackProfile,
+                displayName: fallbackProfile.display_name
+            } as AppUser);
         } finally {
             setLoading(false);
         }
@@ -218,13 +229,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const updateUserProfile = async (data: Partial<AppUser>) => {
+    const updateUserProfile = async (data: Partial<AppUser> & { displayName?: string }) => {
         if (!user) throw new Error('No user logged in');
 
-        const updatedUser = { ...user, ...data };
+        // Normalização de dados: Mapeia displayName (camelCase) para display_name (snake_case)
+        const dbData = { ...data };
+        if ('displayName' in dbData) {
+            dbData.display_name = dbData.displayName!;
+            delete dbData.displayName;
+        }
+
+        const updatedUser = { 
+            ...user, 
+            ...data, 
+            display_name: dbData.display_name || user.display_name,
+            displayName: dbData.display_name || user.display_name 
+        };
+
         const { error } = await supabase
             .from('users')
-            .update(data)
+            .update(dbData)
             .eq('uid', user.uid);
 
         if (error) {
@@ -234,6 +258,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         setUser(updatedUser as AppUser);
         toast.success('Perfil atualizado com sucesso!');
+
+        // Sincronização Automática com o WhatsApp Marketing
+        if (updatedUser.whatsapp && updatedUser.display_name) {
+            try {
+                // Verifica se já existe um cadastro com esse telefone na newsletter
+                const { data: existing } = await supabase
+                    .from('newsletter')
+                    .select('id')
+                    .eq('phone', updatedUser.whatsapp)
+                    .maybeSingle();
+
+                if (!existing) {
+                    // Insere novo contato de marketing
+                    await supabase.from('newsletter').insert({
+                        name: updatedUser.display_name,
+                        phone: updatedUser.whatsapp,
+                        email: updatedUser.email || null
+                    });
+                    console.log('📢 Cliente adicionado ao WhatsApp Marketing!');
+                } else {
+                    // Atualiza nome/e-mail do contato de marketing existente
+                    await supabase
+                        .from('newsletter')
+                        .update({
+                            name: updatedUser.display_name,
+                            email: updatedUser.email || null
+                        })
+                        .eq('phone', updatedUser.whatsapp);
+                    console.log('📢 Contato de WhatsApp Marketing atualizado!');
+                }
+            } catch (syncErr) {
+                console.error('⚠️ Falha ao sincronizar com WhatsApp Marketing:', syncErr);
+            }
+        }
     };
 
     const resetPassword = async (email: string) => {
