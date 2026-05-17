@@ -25,7 +25,7 @@ interface Order {
 import { toast } from 'sonner';
 
 export default function Profile() {
-    const { user, logout, loading, updateUserProfile } = useAuth();
+    const { user, signOut, loading, updateUserProfile } = useAuth();
     const { favorites, products } = useProducts();
     const navigate = useNavigate();
     const [newName, setNewName] = useState('');
@@ -112,7 +112,7 @@ export default function Profile() {
     if (!user) return null;
 
     const handleLogout = async () => {
-        await logout();
+        await signOut();
         navigate('/');
     };
 

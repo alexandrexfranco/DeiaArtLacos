@@ -13,7 +13,7 @@ export function AdminLayout() {
     useEffect(() => {
         if (!loading) {
             if (!user) {
-                navigate('/login');
+                navigate('/');
             } else if (!isAdmin) {
                 navigate('/');
             }
@@ -35,7 +35,7 @@ export function AdminLayout() {
 
     const handleLogout = async () => {
         await signOut();
-        navigate('/login');
+        navigate('/');
     };
 
     const navItems = [
