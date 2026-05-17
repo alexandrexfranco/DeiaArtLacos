@@ -116,21 +116,17 @@ export default function Profile() {
         navigate('/');
     };
 
-    const handleUpdateName = async () => {
-        if (!newName.trim()) return;
-        try {
-            await updateUserProfile({ displayName: newName });
-            toast.success('Nome atualizado!');
-        } catch (error) {
-            console.error(error);
-            toast.error('Erro ao atualizar nome.');
-        }
-    };
-
     const handleUpdateInfo = async () => {
+        if (!newName.trim()) {
+            toast.error('O Nome de Exibição não pode estar vazio.');
+            return;
+        }
         try {
-            await updateUserProfile(editData);
-            toast.success('Informações atualizadas!');
+            await updateUserProfile({
+                ...editData,
+                displayName: newName
+            });
+            toast.success('Informações atualizadas com sucesso! 🎀');
         } catch (error) {
             console.error(error);
             toast.error('Erro ao atualizar informações.');
@@ -429,28 +425,18 @@ export default function Profile() {
                                     <h2 className="text-2xl font-bold text-gray-800 mb-8">Dados de Entrega e Contato</h2>
                                     
                                     <div className="space-y-6">
-                                        {/* Name Edit */}
-                                        <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Nome de Exibição</label>
-                                            <div className="flex gap-2">
-                                                <input
-                                                    value={newName}
-                                                    onChange={(e) => setNewName(e.target.value)}
-                                                    className="flex-grow px-4 py-3 rounded-xl border border-pink-50 focus:ring-2 focus:ring-pink-300 outline-none transition-all"
-                                                />
-                                                <button 
-                                                    onClick={handleUpdateName}
-                                                    className="px-6 bg-pink-500 text-white font-bold rounded-xl hover:bg-pink-600 transition-all shadow-sm"
-                                                >
-                                                    Salvar
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="h-px bg-pink-50 my-6"></div>
-
                                         {/* Delivery Info */}
                                         <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Nome de Exibição</label>
+                                                <input
+                                                    type="text"
+                                                    value={newName}
+                                                    onChange={(e) => setNewName(e.target.value)}
+                                                    placeholder="Seu nome completo"
+                                                    className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-pink-300 outline-none transition-all"
+                                                />
+                                            </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
                                                     <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">WhatsApp</label>
@@ -557,7 +543,7 @@ export default function Profile() {
                                                 className="w-full mt-6 py-4 bg-pink-500 text-white font-bold rounded-2xl hover:bg-pink-600 transition-all shadow-lg shadow-pink-100 flex items-center justify-center gap-2"
                                             >
                                                 <Save size={18} />
-                                                Salvar Dados de Entrega
+                                                Salvar Alterações
                                             </button>
                                         </div>
                                     </div>
