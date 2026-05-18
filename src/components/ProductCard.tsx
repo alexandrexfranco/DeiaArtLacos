@@ -26,11 +26,25 @@ export function ProductCard(product: Product) {
 
             {/* Image */}
             <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-gray-100">
+                {/* Primary image */}
                 <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className={`w-full h-full object-cover transition-all duration-500 ${
+                        product.images?.[1]
+                            ? 'group-hover:opacity-0 group-hover:scale-105'
+                            : 'group-hover:scale-110'
+                    }`}
                 />
+
+                {/* Hover image (second image), only rendered if it exists */}
+                {product.images?.[1] && (
+                    <img
+                        src={product.images[1]}
+                        alt={`${product.name} - vista alternativa`}
+                        className="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
+                    />
+                )}
 
                 {/* Quick Actions */}
                 <div className="absolute top-4 right-4 flex flex-col gap-2">

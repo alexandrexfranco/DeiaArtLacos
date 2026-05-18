@@ -116,7 +116,7 @@ export function AdminLayout() {
 
                 <div className="p-4 border-t border-gray-100 space-y-2">
                     <Link 
-                        to="/" 
+                        to="/loja" 
                         className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-pink-500 rounded-xl transition-all"
                     >
                         <Home size={20} />

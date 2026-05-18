@@ -34,6 +34,7 @@ export function Footer() {
                         </h4>
                         <ul className="space-y-3 text-gray-600">
                             <li><Link to="/sobre" className="hover:text-pink-500 transition-colors">Quem Somos</Link></li>
+                            <li><Link to="/termos-de-uso" className="hover:text-pink-500 transition-colors">Termos de Uso</Link></li>
                             <li><Link to="/politica-troca" className="hover:text-pink-500 transition-colors">Trocas e Devoluções</Link></li>
                             <li><Link to="/privacidade" className="hover:text-pink-500 transition-colors">Política de Privacidade</Link></li>
                             <li><Link to="/politica-cookies" className="hover:text-pink-500 transition-colors">Política de Cookies</Link></li>

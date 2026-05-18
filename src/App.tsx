@@ -8,6 +8,7 @@ import Shop from '@/pages/Shop';
 import About from '@/pages/About';
 import ExchangePolicy from '@/pages/ExchangePolicy';
 import PrivacyPolicy from '@/pages/PrivacyPolicy';
+import TermsOfUse from '@/pages/TermsOfUse';
 import CookiePolicy from '@/pages/CookiePolicy';
 import FAQ from '@/pages/FAQ';
 import Checkout from '@/pages/Checkout';
@@ -54,6 +55,7 @@ function App() {
                                     <Route path="/contato" element={<Contact />} />
                                     <Route path="/politica-troca" element={<ExchangePolicy />} />
                                     <Route path="/privacidade" element={<PrivacyPolicy />} />
+                                    <Route path="/termos-de-uso" element={<TermsOfUse />} />
                                     <Route path="/politica-cookies" element={<CookiePolicy />} />
                                     <Route path="/faq" element={<FAQ />} />
                                     <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
