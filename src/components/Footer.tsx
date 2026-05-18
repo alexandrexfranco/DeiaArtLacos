@@ -146,8 +146,8 @@ export function Footer() {
                 <div className="border-t border-pink-200 pt-8 text-center text-gray-500 text-sm flex flex-col md:flex-row items-center justify-center gap-2">
                     <span>© 2026 Déia Art Laços. Todos os direitos reservados.</span>
                     <span className="hidden md:inline">•</span>
-                    <span className="flex items-center gap-1">
-                        Feito com <Heart className="w-3 h-3 text-red-500 fill-current" /> por Você
+                    <span>
+                        Feito para Você! - Desenvolvido por: Alexandre Franco
                     </span>
                 </div>
             </div>
