@@ -145,7 +145,7 @@ export default function ProductDetails() {
                         <div className="space-y-6 py-8 border-y border-pink-100">
                             <div className="space-y-2">
                                 <h3 className="font-bold text-gray-800">Descrição</h3>
-                                <p className="text-gray-600 leading-relaxed">
+                                <p className="text-gray-600 leading-relaxed whitespace-pre-line">
                                     {product.description || 'Este acessório é feito à mão com materiais de alta qualidade, pensado especialmente para proporcionar conforto e estilo para sua princesa.'}
                                 </p>
                             </div>

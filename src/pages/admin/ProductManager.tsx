@@ -447,8 +447,8 @@ export default function ProductManager() {
                                         <textarea
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            rows={3}
-                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-none"
+                                            rows={6}
+                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-y min-h-[120px]"
                                         />
                                     </div>
                                 </div>
