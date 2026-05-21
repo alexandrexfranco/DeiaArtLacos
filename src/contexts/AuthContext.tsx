@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -68,6 +68,12 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<AppUser | null>(null);
     const [loading, setLoading] = useState(true);
+    const userRef = useRef<AppUser | null>(null);
+
+    // Sincroniza a referência com o estado do usuário para evitar problemas de closure no onAuthStateChange
+    useEffect(() => {
+        userRef.current = user;
+    }, [user]);
 
     const isAdmin = user?.role === 'admin' || user?.email?.toLowerCase() === OWNER_EMAIL;
 
@@ -81,9 +87,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setUser(null);
                 setLoading(false);
             } else if (session?.user) {
-                // Ao logar ou mudar estado, iniciamos a busca do perfil
-                setLoading(true);
-                fetchProfile(session.user);
+                const currentUser = userRef.current;
+                if (currentUser && currentUser.uid === session.user.id) {
+                    console.log('⚡ Auth: Usuário já carregado com o mesmo ID, pulando fetchProfile redundante.');
+                    setLoading(false);
+                } else {
+                    // Ao logar ou mudar estado de usuário novo, iniciamos a busca do perfil
+                    setLoading(true);
+                    fetchProfile(session.user);
+                }
             } else {
                 setLoading(false);
             }
