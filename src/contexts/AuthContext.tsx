@@ -284,32 +284,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Sincronização Automática com o WhatsApp Marketing
         if (updatedUser.whatsapp && updatedUser.display_name) {
             try {
-                // Verifica se já existe um cadastro com esse telefone na newsletter
-                const { data: existing } = await supabase
-                    .from('newsletter')
-                    .select('id')
-                    .eq('phone', updatedUser.whatsapp)
-                    .maybeSingle();
-
-                if (!existing) {
-                    // Insere novo contato de marketing
-                    await supabase.from('newsletter').insert({
+                await supabase.from('newsletter').upsert(
+                    {
                         name: updatedUser.display_name,
                         phone: updatedUser.whatsapp,
                         email: updatedUser.email || null
-                    });
-                    console.log('📢 Cliente adicionado ao WhatsApp Marketing!');
-                } else {
-                    // Atualiza nome/e-mail do contato de marketing existente
-                    await supabase
-                        .from('newsletter')
-                        .update({
-                            name: updatedUser.display_name,
-                            email: updatedUser.email || null
-                        })
-                        .eq('phone', updatedUser.whatsapp);
-                    console.log('📢 Contato de WhatsApp Marketing atualizado!');
-                }
+                    },
+                    { onConflict: 'phone' }
+                );
+                console.log('📢 WhatsApp Marketing sincronizado!');
             } catch (syncErr) {
                 console.error('⚠️ Falha ao sincronizar com WhatsApp Marketing:', syncErr);
             }
