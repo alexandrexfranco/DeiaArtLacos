@@ -7,6 +7,8 @@ export interface AppUser {
     email: string;
     display_name: string;
     displayName?: string; // Campo de compatibilidade com partes legadas do frontend
+    photoURL?: string;    // Campo de compatibilidade com partes legadas do frontend
+    photo_url?: string;   // Coluna real na tabela users do Supabase
     role: 'admin' | 'customer';
     phone?: string;
     address?: string;
@@ -127,7 +129,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 console.log('✅ Perfil carregado com sucesso do banco');
                 setUser({
                     ...profile,
-                    displayName: profile.display_name
+                    displayName: profile.display_name,
+                    photoURL: profile.photo_url || null,
                 } as AppUser);
             } else {
                 console.log('🆕 Perfil não encontrado, criando novo no banco...');
@@ -260,7 +263,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             ...user, 
             ...data, 
             display_name: dbData.display_name || user.display_name,
-            displayName: dbData.display_name || user.display_name 
+            displayName: dbData.display_name || user.display_name,
+            photo_url: dbData.photo_url || user.photo_url,
+            photoURL: dbData.photo_url || user.photo_url,
         };
 
         const { error } = await supabase
