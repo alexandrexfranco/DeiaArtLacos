@@ -7,6 +7,7 @@ interface UserData {
     uid: string;
     email: string;
     display_name: string | null;
+    photo_url: string | null;
     role: 'admin' | 'customer';
     created_at: string;
 }
@@ -96,8 +97,12 @@ export default function UserManager() {
                             <div key={user.uid} className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 space-y-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold">
-                                            {user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                                        <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold overflow-hidden">
+                                            {user.photo_url ? (
+                                                <img src={user.photo_url} alt={user.display_name || ''} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                            ) : (
+                                                user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()
+                                            )}
                                         </div>
                                         <div>
                                             <p className="font-bold text-gray-800">{user.display_name || 'Sem nome'}</p>
@@ -174,8 +179,12 @@ export default function UserManager() {
                                         <tr key={user.uid} className="hover:bg-gray-50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold">
-                                                        {user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()}
+                                                    <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold overflow-hidden">
+                                                        {user.photo_url ? (
+                                                            <img src={user.photo_url} alt={user.display_name || ''} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                                        ) : (
+                                                            user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <p className="font-semibold text-gray-800">
