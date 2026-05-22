@@ -11,6 +11,7 @@ export interface Product {
     category: string;
     size?: string;
     type?: string;
+    sale_type?: string;
     image: string;
     images?: string[];
     likes: number;

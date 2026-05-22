@@ -150,14 +150,18 @@ export default function ProductDetails() {
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 rounded-2xl bg-white border border-pink-50">
-                                    <span className="text-xs text-gray-400 uppercase font-bold">Tipo</span>
-                                    <p className="font-bold text-gray-700">{product.type || 'N/A'}</p>
+                            <div className="grid grid-cols-3 gap-3 sm:gap-4">
+                                <div className="p-3 sm:p-4 rounded-2xl bg-white border border-pink-50">
+                                    <span className="text-[10px] sm:text-xs text-gray-400 uppercase font-bold">Tipo</span>
+                                    <p className="text-sm sm:text-base font-bold text-gray-700">{product.type || 'N/A'}</p>
                                 </div>
-                                <div className="p-4 rounded-2xl bg-white border border-pink-50">
-                                    <span className="text-xs text-gray-400 uppercase font-bold">Tamanho</span>
-                                    <p className="font-bold text-gray-700">{product.size || 'N/A'}</p>
+                                <div className="p-3 sm:p-4 rounded-2xl bg-white border border-pink-50">
+                                    <span className="text-[10px] sm:text-xs text-gray-400 uppercase font-bold">Modelo</span>
+                                    <p className="text-sm sm:text-base font-bold text-gray-700">{product.sale_type || 'Unitário'}</p>
+                                </div>
+                                <div className="p-3 sm:p-4 rounded-2xl bg-white border border-pink-50">
+                                    <span className="text-[10px] sm:text-xs text-gray-400 uppercase font-bold">Tamanho</span>
+                                    <p className="text-sm sm:text-base font-bold text-gray-700">{product.size || 'N/A'}</p>
                                 </div>
                             </div>
                         </div>

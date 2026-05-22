@@ -19,6 +19,7 @@ export default function ProductManager() {
         category: 'Crianças',
         size: 'M',
         type: 'Laço',
+        sale_type: 'Unitário',
         image: '',
         images: [],
         isNew: false,
@@ -29,7 +30,10 @@ export default function ProductManager() {
     const handleOpenModal = (product?: Product) => {
         if (product) {
             setEditingProduct(product);
-            setFormData(product);
+            setFormData({
+                ...product,
+                sale_type: product.sale_type || 'Unitário'
+            });
         } else {
             setEditingProduct(null);
             setFormData({
@@ -39,6 +43,7 @@ export default function ProductManager() {
                 category: 'Crianças',
                 size: 'M',
                 type: 'Laço',
+                sale_type: 'Unitário',
                 image: '',
                 images: [],
                 isNew: false,
@@ -137,6 +142,7 @@ export default function ProductManager() {
                 category: formData.category || 'Crianças',
                 size: formData.size || 'M',
                 type: formData.type || 'Bico de Pato',
+                sale_type: formData.sale_type || 'Unitário',
                 image: formData.image || '',
                 images: formData.images || [],
                 likes: formData.likes || 0,
@@ -219,6 +225,7 @@ export default function ProductManager() {
                                 <div className="flex flex-wrap gap-1 mt-2">
                                     <span className="px-2 py-0.5 bg-pink-50 text-pink-600 rounded-md text-[10px] font-bold uppercase">{product.category}</span>
                                     <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[10px] font-bold uppercase">{product.type}</span>
+                                    <span className="px-2 py-0.5 bg-purple-50 text-purple-600 rounded-md text-[10px] font-bold uppercase">{product.sale_type || 'Unitário'}</span>
                                     <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md text-[10px] font-bold uppercase">Tam: {product.size}</span>
                                 </div>
                             </div>
@@ -271,9 +278,10 @@ export default function ProductManager() {
                                         </td>
                                         <td className="px-6 py-4 font-bold text-gray-800">{product.name}</td>
                                         <td className="px-6 py-4 text-xs text-gray-500 space-y-1">
-                                            <div className="flex gap-1">
+                                            <div className="flex flex-wrap gap-1">
                                                 <span className="px-2 py-0.5 bg-pink-50 text-pink-600 rounded-md font-bold">{product.category}</span>
                                                 <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md font-bold">{product.type}</span>
+                                                <span className="px-2 py-0.5 bg-purple-50 text-purple-600 rounded-md font-bold">{product.sale_type || 'Unitário'}</span>
                                             </div>
                                             <div className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md inline-block font-bold">Tam: {product.size}</div>
                                         </td>
@@ -427,20 +435,33 @@ export default function ProductManager() {
                                             </select>
                                         </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Tipo</label>
-                                        <select
-                                            value={formData.type}
-                                            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
-                                        >
-                                            <option>Laço</option>
-                                            <option>Tiara</option>
-                                            <option>Faixa</option>
-                                            <option>Kit</option>
-                                            <option>Bico de Pato</option>
-                                            <option>Xuxinha</option>
-                                        </select>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Tipo</label>
+                                            <select
+                                                value={formData.type}
+                                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                                            >
+                                                <option>Laço</option>
+                                                <option>Tiara</option>
+                                                <option>Faixa</option>
+                                                <option>Bico de Pato</option>
+                                                <option>Xuxinha</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Apresentação</label>
+                                            <select
+                                                value={formData.sale_type}
+                                                onChange={(e) => setFormData({ ...formData, sale_type: e.target.value })}
+                                                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 bg-white"
+                                            >
+                                                <option>Unitário</option>
+                                                <option>Kit</option>
+                                                <option>Parzinho</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-1">Descrição</label>
