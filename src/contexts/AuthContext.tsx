@@ -245,11 +245,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updateUserProfile = async (data: Partial<AppUser> & { displayName?: string }) => {
         if (!user) throw new Error('No user logged in');
 
-        // Normalização de dados: Mapeia displayName (camelCase) para display_name (snake_case)
-        const dbData = { ...data };
+        // Normalização de dados: Mapeia campos camelCase para snake_case do banco
+        const dbData = { ...data } as any;
         if ('displayName' in dbData) {
-            dbData.display_name = dbData.displayName!;
+            dbData.display_name = dbData.displayName;
             delete dbData.displayName;
+        }
+        if ('photoURL' in dbData) {
+            dbData.photo_url = dbData.photoURL;
+            delete dbData.photoURL;
         }
 
         const updatedUser = { 
