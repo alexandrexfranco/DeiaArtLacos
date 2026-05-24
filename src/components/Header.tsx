@@ -8,9 +8,14 @@ import { Link, useNavigate } from 'react-router-dom';
 export function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [avatarError, setAvatarError] = useState(false);
     const { user, signOut, isAdmin } = useAuth();
     const { setIsCartOpen, itemCount } = useCart();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setAvatarError(false);
+    }, [user]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -63,8 +68,18 @@ export function Header() {
                         {user ? (
                             <div className="relative group">
                                 <button className="text-gray-600 hover:text-pink-500 hover:scale-110 transition-all flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold border border-pink-200">
-                                        {user.email?.[0].toUpperCase()}
+                                    <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold border border-pink-200 overflow-hidden">
+                                        {(user.photoURL || user.photo_url) && !avatarError ? (
+                                            <img
+                                                src={user.photoURL || user.photo_url}
+                                                alt={user.display_name || 'Perfil'}
+                                                className="w-full h-full object-cover"
+                                                referrerPolicy="no-referrer"
+                                                onError={() => setAvatarError(true)}
+                                            />
+                                        ) : (
+                                            user.display_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()
+                                        )}
                                     </div>
                                 </button>
                                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-pink-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform origin-top-right z-50">
@@ -102,8 +117,18 @@ export function Header() {
                         {/* Auth (Mobile) */}
                         {user ? (
                             <Link to={isAdmin ? "/admin" : "/perfil"} className={`p-2 transition-all ${!isScrolled ? 'text-white' : 'text-gray-600'}`}>
-                                <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold border border-pink-200">
-                                    {user.email?.[0].toUpperCase()}
+                                <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold border border-pink-200 overflow-hidden">
+                                    {(user.photoURL || user.photo_url) && !avatarError ? (
+                                        <img
+                                            src={user.photoURL || user.photo_url}
+                                            alt={user.display_name || 'Perfil'}
+                                            className="w-full h-full object-cover"
+                                            referrerPolicy="no-referrer"
+                                            onError={() => setAvatarError(true)}
+                                        />
+                                    ) : (
+                                        user.display_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()
+                                    )}
                                 </div>
                             </Link>
                         ) : (

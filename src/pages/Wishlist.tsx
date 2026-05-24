@@ -50,7 +50,7 @@ export default function Wishlist() {
                             >
                                 <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-gray-100">
                                     <img
-                                        src={product.image}
+                                        src={product.image || product.images?.[0] || 'https://placehold.co/600x600?text=Sem+Foto'}
                                         alt={product.name}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                     />

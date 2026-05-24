@@ -30,6 +30,7 @@ export default function Profile() {
     const navigate = useNavigate();
     const [newName, setNewName] = useState('');
     const [isUploading, setIsUploading] = useState(false);
+    const [avatarError, setAvatarError] = useState(false);
     const [editData, setEditData] = useState({
         whatsapp: '',
         cep: '',
@@ -96,6 +97,10 @@ export default function Profile() {
             setIsInitialized(true);
         }
     }, [user, loading, navigate, isInitialized]);
+
+    useEffect(() => {
+        setAvatarError(false);
+    }, [user]);
 
     if (loading) {
         return (
@@ -248,8 +253,8 @@ export default function Profile() {
                                         disabled={isUploading}
                                         className="w-full h-full rounded-full bg-white p-1 shadow-sm overflow-hidden relative group cursor-pointer"
                                     >
-                                        {user.photoURL ? (
-                                            <img src={user.photoURL} alt="Perfil" className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" />
+                                        {(user.photoURL || user.photo_url) && !avatarError ? (
+                                            <img src={user.photoURL || user.photo_url} alt="Perfil" className="w-full h-full object-cover rounded-full" referrerPolicy="no-referrer" onError={() => setAvatarError(true)} />
                                         ) : (
                                             <div className="w-full h-full rounded-full bg-pink-100 flex items-center justify-center text-2xl font-bold text-pink-500">
                                                 {user.displayName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase()}
@@ -576,7 +581,7 @@ export default function Profile() {
                                                 >
                                                     <div className="aspect-square relative overflow-hidden">
                                                         <img 
-                                                            src={product.image} 
+                                                            src={product.image || product.images?.[0] || 'https://placehold.co/600x600?text=Sem+Foto'} 
                                                             alt={product.name} 
                                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                                         />

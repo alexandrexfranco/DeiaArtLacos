@@ -17,6 +17,7 @@ export default function UserManager() {
     const [isLoading, setIsLoading] = useState(true);
     const [editingUserId, setEditingUserId] = useState<string | null>(null);
     const [editingRole, setEditingRole] = useState<'admin' | 'customer'>('customer');
+    const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         fetchUsers();
@@ -98,8 +99,14 @@ export default function UserManager() {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold overflow-hidden">
-                                            {user.photo_url ? (
-                                                <img src={user.photo_url} alt={user.display_name || ''} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                            {user.photo_url && !imageErrors[user.uid] ? (
+                                                <img 
+                                                    src={user.photo_url} 
+                                                    alt={user.display_name || ''} 
+                                                    className="w-full h-full object-cover" 
+                                                    referrerPolicy="no-referrer" 
+                                                    onError={() => setImageErrors(prev => ({ ...prev, [user.uid]: true }))}
+                                                />
                                             ) : (
                                                 user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()
                                             )}
@@ -180,8 +187,14 @@ export default function UserManager() {
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-bold overflow-hidden">
-                                                        {user.photo_url ? (
-                                                            <img src={user.photo_url} alt={user.display_name || ''} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                                        {user.photo_url && !imageErrors[user.uid] ? (
+                                                            <img 
+                                                                src={user.photo_url} 
+                                                                alt={user.display_name || ''} 
+                                                                className="w-full h-full object-cover" 
+                                                                referrerPolicy="no-referrer" 
+                                                                onError={() => setImageErrors(prev => ({ ...prev, [user.uid]: true }))}
+                                                            />
                                                         ) : (
                                                             user.display_name?.[0]?.toUpperCase() || user.email[0].toUpperCase()
                                                         )}

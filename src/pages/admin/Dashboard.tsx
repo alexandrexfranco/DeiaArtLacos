@@ -214,7 +214,7 @@ export default function Dashboard() {
                             {products.slice(0, 5).map((product) => (
                                 <div key={product.id} className="p-4 flex items-center gap-4">
                                     <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
-                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                        <img src={product.image || product.images?.[0] || 'https://placehold.co/600x600?text=Sem+Foto'} alt={product.name} className="w-full h-full object-cover" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h4 className="font-bold text-gray-800 truncate">{product.name}</h4>
@@ -252,7 +252,7 @@ export default function Dashboard() {
                                         <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="px-6 py-4 flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden">
-                                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                                    <img src={product.image || product.images?.[0] || 'https://placehold.co/600x600?text=Sem+Foto'} alt={product.name} className="w-full h-full object-cover" />
                                                 </div>
                                                 <span className="font-medium text-gray-700">{product.name}</span>
                                             </td>

@@ -143,7 +143,7 @@ export default function ProductManager() {
                 size: formData.size || 'M',
                 type: formData.type || 'Bico de Pato',
                 sale_type: formData.sale_type || 'Unitário',
-                image: formData.image || '',
+                image: formData.image || formData.images?.[0] || '',
                 images: formData.images || [],
                 likes: formData.likes || 0,
                 isNew: formData.isNew || false,
@@ -215,7 +215,7 @@ export default function ProductManager() {
                     products.map((product) => (
                         <div key={product.id} className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4 flex gap-4 items-center">
                             <div className="w-20 h-20 rounded-2xl bg-gray-100 overflow-hidden border border-gray-200 flex-shrink-0">
-                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                <img src={product.image || product.images?.[0] || 'https://placehold.co/600x600?text=Sem+Foto'} alt={product.name} className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h4 className="font-bold text-gray-800 truncate">{product.name}</h4>
@@ -273,7 +273,7 @@ export default function ProductManager() {
                                     <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">
-                                                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                                <img src={product.image || product.images?.[0] || 'https://placehold.co/600x600?text=Sem+Foto'} alt={product.name} className="w-full h-full object-cover" />
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 font-bold text-gray-800">{product.name}</td>

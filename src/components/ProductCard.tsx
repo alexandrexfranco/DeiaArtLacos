@@ -28,19 +28,19 @@ export function ProductCard(product: Product) {
             <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-gray-100">
                 {/* Primary image */}
                 <img
-                    src={product.image}
+                    src={product.image || product.images?.[0] || 'https://placehold.co/600x600?text=Sem+Foto'}
                     alt={product.name}
                     className={`w-full h-full object-cover transition-all duration-500 ${
-                        product.images?.[1]
+                        (product.image ? product.images?.[0] : product.images?.[1])
                             ? 'group-hover:opacity-0 group-hover:scale-105'
                             : 'group-hover:scale-110'
                     }`}
                 />
 
                 {/* Hover image (second image), only rendered if it exists */}
-                {product.images?.[1] && (
+                {(product.image ? product.images?.[0] : product.images?.[1]) && (
                     <img
-                        src={product.images[1]}
+                        src={product.image ? product.images[0] : product.images[1]}
                         alt={`${product.name} - vista alternativa`}
                         className="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 group-hover:opacity-100 group-hover:scale-100 transition-all duration-500"
                     />
