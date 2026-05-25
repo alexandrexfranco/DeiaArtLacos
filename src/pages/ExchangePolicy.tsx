@@ -91,9 +91,12 @@ export default function ExchangePolicy() {
                 </motion.div>
 
                 {/* Important Note */}
-                <div className="mt-8 text-center text-gray-500 text-sm">
+                <div className="mt-8 text-center text-gray-500 text-sm space-y-2">
                     <p>
                         <strong>Importante:</strong> Não aceitamos devolução de produtos personalizados (ex: com nome da criança), exceto em caso de defeito de fabricação.
+                    </p>
+                    <p className="text-xs text-gray-400">
+                        * Pequenas variações de cor e tonalidade entre as fotos do site (que são meramente ilustrativas) e o produto físico devido às configurações de tela do seu monitor ou celular não são consideradas defeitos de fabricação.
                     </p>
                 </div>
             </div>
