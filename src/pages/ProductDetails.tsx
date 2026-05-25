@@ -148,6 +148,9 @@ export default function ProductDetails() {
                                 <p className="text-gray-600 leading-relaxed whitespace-pre-line">
                                     {product.description || 'Este acessório é feito à mão com materiais de alta qualidade, pensado especialmente para proporcionar conforto e estilo para sua princesa.'}
                                 </p>
+                                <p className="text-[11px] text-gray-400 italic mt-2">
+                                    * Imagens meramente ilustrativas. As cores e tons podem sofrer pequenas variações dependendo da iluminação e das configurações do seu monitor ou celular.
+                                </p>
                             </div>
 
                             <div className="grid grid-cols-3 gap-3 sm:gap-4">

@@ -143,6 +143,10 @@ export function Footer() {
                     </div>
                 </div>
 
+                <div className="text-center text-xs text-gray-400 mb-6 italic">
+                    ⚠️ Atenção: As imagens dos produtos são meramente ilustrativas. Cores e tons podem variar de acordo com as configurações do seu dispositivo.
+                </div>
+
                 <div className="border-t border-pink-200 pt-8 text-center text-gray-500 text-sm flex flex-col md:flex-row items-center justify-center gap-2">
                     <span>© 2026 Déia Art Laços. Todos os direitos reservados.</span>
                     <span className="hidden md:inline">•</span>
