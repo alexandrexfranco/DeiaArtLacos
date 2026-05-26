@@ -432,6 +432,12 @@ export default function ProductManager() {
                                                 <option>M</option>
                                                 <option>G</option>
                                                 <option>Mini</option>
+                                                <option>Mini e P</option>
+                                                <option>Mini e M</option>
+                                                <option>Mini e G</option>
+                                                <option>P e M</option>
+                                                <option>P e G</option>
+                                                <option>M e G</option>
                                             </select>
                                         </div>
                                     </div>
