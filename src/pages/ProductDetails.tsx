@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '@/contexts/ProductContext';
 import { useCart } from '@/contexts/CartContext';
@@ -18,6 +18,19 @@ export default function ProductDetails() {
 
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+    const [isStickyVisible, setIsStickyVisible] = useState(false);
+    const mainButtonRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!mainButtonRef.current) return;
+            const rect = mainButtonRef.current.getBoundingClientRect();
+            // Show sticky footer if the main add to cart button is scrolled past
+            setIsStickyVisible(rect.bottom < 0);
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const allImages = product ? [product.image, ...(product.images || [])].filter(Boolean) : [];
     const activeImage = allImages[activeImageIndex];
@@ -170,7 +183,7 @@ export default function ProductDetails() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col sm:flex-row gap-4">
+                        <div ref={mainButtonRef} className="flex flex-col sm:flex-row gap-4">
                             <button 
                                 onClick={handleAddToCart}
                                 className="flex-1 bg-pink-500 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg shadow-pink-200 hover:bg-pink-600 hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
@@ -306,6 +319,34 @@ export default function ProductDetails() {
                                 ))}
                             </div>
                         )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Sticky Mobile Add to Cart Bar */}
+            <AnimatePresence>
+                {isStickyVisible && (
+                    <motion.div
+                        initial={{ y: 100 }}
+                        animate={{ y: 0 }}
+                        exit={{ y: 100 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-pink-100 p-4 shadow-xl flex items-center gap-3 sm:hidden"
+                    >
+                        <div className="flex-1 min-w-0 text-left">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase truncate leading-none mb-0.5">{product.category}</p>
+                            <p className="text-sm font-bold text-gray-800 truncate leading-none mb-1">{product.name}</p>
+                            <p className="text-base font-bold text-pink-500 leading-none">
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleAddToCart}
+                            className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3.5 rounded-xl font-bold text-sm shadow-md shadow-pink-200 active:scale-95 transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+                        >
+                            <ShoppingCart size={16} />
+                            Adicionar
+                        </button>
                     </motion.div>
                 )}
             </AnimatePresence>

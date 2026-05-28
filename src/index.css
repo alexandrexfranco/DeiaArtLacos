@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Outfit:wght@300;400;500;600;700&family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 @theme {
-    --font-sans: "Quicksand", sans-serif;
+    --font-sans: "Outfit", sans-serif;
+    --font-serif: "Lora", serif;
     --font-handwritten: "Caveat", cursive;
 
     --color-cream: #FFFBF5;
@@ -37,7 +38,7 @@
     h4,
     h5,
     h6 {
-        @apply font-bold text-pink-500;
+        @apply font-serif font-bold text-pink-500;
     }
 }
 
