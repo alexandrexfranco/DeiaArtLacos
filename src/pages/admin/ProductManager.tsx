@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useProducts, Product } from '@/contexts/ProductContext';
 import { Plus, Edit2, Trash2, X, Upload, Save } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -6,6 +6,35 @@ import { toast } from 'sonner';
 
 export default function ProductManager() {
     const { products, refreshProducts } = useProducts();
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    const insertFormat = (tagOpen: string, tagClose: string) => {
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = formData.description || '';
+        
+        const selectedText = text.substring(start, end);
+        const replacement = tagOpen + selectedText + tagClose;
+        
+        const newDescription = text.substring(0, start) + replacement + text.substring(end);
+        
+        setFormData(prev => ({ ...prev, description: newDescription }));
+        
+        // Colocar o cursor de volta na posição correta e focar
+        setTimeout(() => {
+            textarea.focus();
+            const newCursorPos = start + tagOpen.length + selectedText.length + tagClose.length;
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+        }, 0);
+    };
+
+    const insertEmoji = (emoji: string) => {
+        insertFormat(emoji, '');
+    };
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Product | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -470,12 +499,65 @@ export default function ProductManager() {
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Descrição</label>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <label className="block text-sm font-bold text-gray-700">Descrição</label>
+                                            <span className="text-[10px] text-gray-400 font-normal">Selecione o texto e clique para formatar</span>
+                                        </div>
+                                        
+                                        {/* Formatting Toolbar */}
+                                        <div className="flex flex-wrap items-center gap-1.5 p-2 bg-gray-50 border border-gray-200 rounded-t-xl">
+                                            <button
+                                                type="button"
+                                                onClick={() => insertFormat('**', '**')}
+                                                className="px-2.5 py-1 text-xs font-extrabold bg-white hover:bg-pink-50 border border-gray-200 text-gray-700 rounded-lg hover:text-pink-500 hover:border-pink-200 transition-all cursor-pointer"
+                                                title="Negrito (**texto**)"
+                                            >
+                                                N
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => insertFormat('[pink]', '[/pink]')}
+                                                className="px-2.5 py-1 text-xs font-bold bg-white hover:bg-pink-50 border border-gray-200 text-pink-500 rounded-lg hover:border-pink-200 transition-all flex items-center gap-1 cursor-pointer"
+                                                title="Cor Rosa ([pink]texto[/pink])"
+                                            >
+                                                <span className="w-2.5 h-2.5 rounded-full bg-pink-500 inline-block"></span>
+                                                Rosa
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => insertFormat('[gold]', '[/gold]')}
+                                                className="px-2.5 py-1 text-xs font-bold bg-white hover:bg-amber-50 border border-gray-200 text-amber-600 rounded-lg hover:border-amber-200 transition-all flex items-center gap-1 cursor-pointer"
+                                                title="Cor Dourada ([gold]texto[/gold])"
+                                            >
+                                                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                                                Dourado
+                                            </button>
+                                            
+                                            <div className="h-4 w-[1px] bg-gray-200 mx-1"></div>
+                                            
+                                            {/* Quick Emojis */}
+                                            <div className="flex items-center gap-1">
+                                                {['🎀', '🌸', '✨', '💖', '👶', '👑', '🛍️', '🌈'].map(emoji => (
+                                                    <button
+                                                        key={emoji}
+                                                        type="button"
+                                                        onClick={() => insertEmoji(emoji)}
+                                                        className="p-1 hover:bg-pink-50 rounded text-sm transition-colors cursor-pointer"
+                                                        title={`Inserir ${emoji}`}
+                                                    >
+                                                        {emoji}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
                                         <textarea
+                                            ref={textareaRef}
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                             rows={6}
-                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-y min-h-[120px]"
+                                            className="w-full px-4 py-2 rounded-b-xl border border-t-0 border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 resize-y min-h-[120px]"
+                                            placeholder="Digite a descrição do produto..."
                                         />
                                     </div>
                                 </div>

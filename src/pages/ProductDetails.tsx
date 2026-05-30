@@ -2,10 +2,34 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '@/contexts/ProductContext';
 import { useCart } from '@/contexts/CartContext';
-import { Heart, ShoppingCart, ArrowLeft, Star, ShieldCheck, Truck, RotateCcw, X, ChevronLeft, ChevronRight, MessageCircle, Link as LinkIcon } from 'lucide-react';
+import { Heart, ShoppingCart, ArrowLeft, Star, ShieldCheck, Truck, RotateCcw, X, ChevronLeft, ChevronRight, MessageCircle, Link as LinkIcon, Sparkles, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { ProductReviews } from '@/components/ProductReviews';
+
+function formatDescription(text: string): string {
+    if (!text) return '';
+    // Escape unsafe characters to prevent XSS
+    let escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    // Convert markdown bold **text** to strong
+    escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-pink-600">$1</strong>');
+    
+    // Convert basic HTML <b> or <strong> if they write it
+    escaped = escaped.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/g, '<strong class="font-bold text-pink-600">$1</strong>');
+    escaped = escaped.replace(/&lt;strong&gt;(.*?)&lt;\/strong&gt;/g, '<strong class="font-bold text-pink-600">$1</strong>');
+
+    // Convert color tags: [pink]text[/pink] and [gold]text[/gold]
+    escaped = escaped.replace(/\[pink\](.*?)\[\/pink\]/g, '<span class="text-pink-500 font-bold">$1</span>');
+    escaped = escaped.replace(/\[gold\](.*?)\[\/gold\]/g, '<span class="text-amber-500 font-bold">$1</span>');
+
+    return escaped;
+}
 
 export default function ProductDetails() {
     const { id } = useParams();
@@ -117,6 +141,77 @@ export default function ProductDetails() {
                                 ))}
                             </div>
                         )}
+
+                        {/* Care Instructions & Quality Highlights */}
+                        <div className="mt-8 bg-white/70 backdrop-blur-md border border-pink-100/80 rounded-3xl p-6 shadow-soft space-y-6">
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-1">
+                                    <Sparkles size={18} className="text-pink-500 animate-pulse" />
+                                    Diferenciais & Cuidados
+                                </h3>
+                                <p className="text-xs text-gray-500">
+                                    Nossas peças são feitas com amor para durar e trazer muito conforto para sua princesa.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-pink-100">
+                                {/* Column 1: Qualidades */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-bold text-pink-600 flex items-center gap-1.5">
+                                        <Heart size={14} fill="currentColor" />
+                                        Por que escolher?
+                                    </h4>
+                                    <ul className="space-y-2.5">
+                                        <li className="flex items-start gap-2 text-xs text-gray-600">
+                                            <span className="text-pink-400 mt-0.5">•</span>
+                                            <div>
+                                                <strong className="text-gray-700">100% Artesanal:</strong> Costurado e finalizado à mão com carinho único.
+                                            </div>
+                                        </li>
+                                        <li className="flex items-start gap-2 text-xs text-gray-600">
+                                            <span className="text-pink-400 mt-0.5">•</span>
+                                            <div>
+                                                <strong className="text-gray-700">Presilha Confortável:</strong> Forrada e com borrachinha antideslizante que não puxa cabelo.
+                                            </div>
+                                        </li>
+                                        <li className="flex items-start gap-2 text-xs text-gray-600">
+                                            <span className="text-pink-400 mt-0.5">•</span>
+                                            <div>
+                                                <strong className="text-gray-700">Materiais Premium:</strong> Fitas importadas selecionadas para alta durabilidade.
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                {/* Column 2: Cuidados */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-bold text-pink-600 flex items-center gap-1.5">
+                                        <Info size={14} />
+                                        Como cuidar da peça
+                                    </h4>
+                                    <ul className="space-y-2.5">
+                                        <li className="flex items-start gap-2 text-xs text-gray-600">
+                                            <span className="text-pink-400 mt-0.5">•</span>
+                                            <div>
+                                                <strong className="text-gray-700">Evite Umidade:</strong> Não molhe e guarde apenas após secar o cabelo da criança.
+                                            </div>
+                                        </li>
+                                        <li className="flex items-start gap-2 text-xs text-gray-600">
+                                            <span className="text-pink-400 mt-0.5">•</span>
+                                            <div>
+                                                <strong className="text-gray-700">Guarde com Carinho:</strong> Organize sem amassar, preferencialmente pendurado.
+                                            </div>
+                                        </li>
+                                        <li className="flex items-start gap-2 text-xs text-gray-600">
+                                            <span className="text-pink-400 mt-0.5">•</span>
+                                            <div>
+                                                <strong className="text-gray-700">Limpeza Suave:</strong> Use apenas lenço umedecido ou espanador leve se necessário.
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </motion.div>
 
                     {/* Product Info */}
@@ -158,9 +253,12 @@ export default function ProductDetails() {
                         <div className="space-y-6 py-8 border-y border-pink-100">
                             <div className="space-y-2">
                                 <h3 className="font-bold text-gray-800">Descrição</h3>
-                                <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                                    {product.description || 'Este acessório é feito à mão com materiais de alta qualidade, pensado especialmente para proporcionar conforto e estilo para sua princesa.'}
-                                </p>
+                                <p 
+                                    className="text-gray-600 leading-relaxed whitespace-pre-line"
+                                    dangerouslySetInnerHTML={{ 
+                                        __html: formatDescription(product.description || 'Este acessório é feito à mão com materiais de alta qualidade, pensado especialmente para proporcionar conforto e estilo para sua princesa.') 
+                                    }}
+                                />
                                 <p className="text-[11px] text-gray-400 italic mt-2">
                                     * Imagens meramente ilustrativas. As cores e tons podem sofrer pequenas variações dependendo da iluminação e das configurações do seu monitor ou celular.
                                 </p>
