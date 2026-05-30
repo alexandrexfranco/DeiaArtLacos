@@ -53,7 +53,8 @@ export default function ProductManager() {
         images: [],
         isNew: false,
         isBestSeller: false,
-        likes: 0
+        likes: 0,
+        colors: ''
     });
 
     const handleOpenModal = (product?: Product) => {
@@ -61,7 +62,8 @@ export default function ProductManager() {
             setEditingProduct(product);
             setFormData({
                 ...product,
-                sale_type: product.sale_type || 'Unitário'
+                sale_type: product.sale_type || 'Unitário',
+                colors: product.colors || ''
             });
         } else {
             setEditingProduct(null);
@@ -77,7 +79,8 @@ export default function ProductManager() {
                 images: [],
                 isNew: false,
                 isBestSeller: false,
-                likes: 0
+                likes: 0,
+                colors: ''
             });
         }
         setIsModalOpen(true);
@@ -177,6 +180,7 @@ export default function ProductManager() {
                 likes: formData.likes || 0,
                 isNew: formData.isNew || false,
                 isBestSeller: formData.isBestSeller || false,
+                colors: formData.colors || '',
             };
 
             console.log('Payload para o Supabase:', productData);
@@ -256,6 +260,9 @@ export default function ProductManager() {
                                     <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[10px] font-bold uppercase">{product.type}</span>
                                     <span className="px-2 py-0.5 bg-purple-50 text-purple-600 rounded-md text-[10px] font-bold uppercase">{product.sale_type || 'Unitário'}</span>
                                     <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md text-[10px] font-bold uppercase">Tam: {product.size}</span>
+                                    {product.colors && (
+                                        <span className="px-2 py-0.5 bg-pink-50/50 text-pink-500 rounded-md text-[10px] font-medium max-w-full truncate">Cores: {product.colors}</span>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
@@ -313,6 +320,9 @@ export default function ProductManager() {
                                                 <span className="px-2 py-0.5 bg-purple-50 text-purple-600 rounded-md font-bold">{product.sale_type || 'Unitário'}</span>
                                             </div>
                                             <div className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md inline-block font-bold">Tam: {product.size}</div>
+                                            {product.colors && (
+                                                <div className="text-[10px] text-gray-400 font-semibold mt-1">Cores: {product.colors}</div>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 font-bold text-gray-800">
                                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price)}
@@ -497,6 +507,15 @@ export default function ProductManager() {
                                                 <option>Parzinho</option>
                                             </select>
                                         </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Cores Disponíveis (separadas por vírgula, opcional)</label>
+                                        <input
+                                            placeholder="Ex: Branco, Vermelho, Marrom"
+                                            value={formData.colors || ''}
+                                            onChange={(e) => setFormData({ ...formData, colors: e.target.value })}
+                                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-pink-300 mb-4"
+                                        />
                                     </div>
                                     <div>
                                         <div className="flex justify-between items-center mb-1">

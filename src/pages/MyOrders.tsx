@@ -10,6 +10,7 @@ interface OrderItem {
     quantity: number;
     price: number;
     image: string;
+    selectedColors?: string[];
 }
 
 interface Order {
@@ -115,6 +116,11 @@ export default function MyOrders() {
                                             </div>
                                             <div className="flex-grow">
                                                 <h3 className="font-bold text-gray-800 text-sm">{item.name}</h3>
+                                                {item.selectedColors && item.selectedColors.length > 0 && (
+                                                    <p className="text-xs text-pink-500 font-medium mt-0.5">
+                                                        Cores: {item.selectedColors.join(' e ')}
+                                                    </p>
+                                                )}
                                                 <p className="text-xs text-gray-500">Qtd: {item.quantity}</p>
                                             </div>
                                             <div className="text-sm font-medium text-pink-500">

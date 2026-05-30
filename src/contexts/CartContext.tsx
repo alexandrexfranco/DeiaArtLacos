@@ -4,15 +4,17 @@ import { Product } from './ProductContext';
 
 export interface CartItem extends Product {
     quantity: number;
+    selectedColors?: string[];
+    cartId: string;
 }
 
 interface CartContextType {
     items: CartItem[];
     itemCount: number;
     total: number;
-    addToCart: (product: Product) => void;
-    removeFromCart: (productId: string) => void;
-    updateQuantity: (productId: string, quantity: number) => void;
+    addToCart: (product: Product, selectedColors?: string[]) => void;
+    removeFromCart: (cartId: string) => void;
+    updateQuantity: (cartId: string, quantity: number) => void;
     clearCart: () => void;
     isCartOpen: boolean;
     setIsCartOpen: (isOpen: boolean) => void;
@@ -48,35 +50,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('cart', JSON.stringify(items));
     }, [items]);
 
-    const addToCart = (product: Product) => {
+    const addToCart = (product: Product, selectedColors?: string[]) => {
+        const cartId = `${product.id}-${(selectedColors || []).sort().join('_')}`;
         setItems(prev => {
-            const existing = prev.find(item => item.id === product.id);
+            const existing = prev.find(item => item.cartId === cartId);
             if (existing) {
                 toast.success(`Mais um ${product.name} adicionado!`);
                 return prev.map(item =>
-                    item.id === product.id
+                    item.cartId === cartId
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
             }
             toast.success(`${product.name} adicionado ao carrinho!`);
             setIsCartOpen(true); // Auto open cart
-            return [...prev, { ...product, quantity: 1 }];
+            return [...prev, { ...product, quantity: 1, selectedColors, cartId }];
         });
     };
 
-    const removeFromCart = (productId: string) => {
-        setItems(prev => prev.filter(item => item.id !== productId));
+    const removeFromCart = (cartId: string) => {
+        setItems(prev => prev.filter(item => item.cartId !== cartId));
         toast.info('Item removido.');
     };
 
-    const updateQuantity = (productId: string, quantity: number) => {
+    const updateQuantity = (cartId: string, quantity: number) => {
         if (quantity < 1) {
-            removeFromCart(productId);
+            removeFromCart(cartId);
             return;
         }
         setItems(prev => prev.map(item =>
-            item.id === productId ? { ...item, quantity } : item
+            item.cartId === cartId ? { ...item, quantity } : item
         ));
     };
 

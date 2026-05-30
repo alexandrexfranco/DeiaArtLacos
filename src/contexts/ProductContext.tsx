@@ -17,6 +17,7 @@ export interface Product {
     likes: number;
     isNew?: boolean;
     isBestSeller?: boolean;
+    colors?: string;
 }
 
 interface ProductContextType {

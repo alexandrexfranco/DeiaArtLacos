@@ -122,7 +122,10 @@ export default function Checkout() {
         message += `🛒 *Itens do Pedido:*\n`;
 
         items.forEach(item => {
-            message += `▫️ ${item.quantity}x ${item.name} (${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price)})\n`;
+            const colorText = item.selectedColors && item.selectedColors.length > 0 
+                ? ` (Cor: ${item.selectedColors.join(' e ')})` 
+                : '';
+            message += `▫️ ${item.quantity}x ${item.name}${colorText} (${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price)})\n`;
             message += `🔗 ${window.location.origin}/produto/${item.id}\n`;
         });
 
@@ -164,7 +167,8 @@ export default function Checkout() {
                     name: item.name,
                     quantity: item.quantity,
                     price: item.price,
-                    image: item.image
+                    image: item.image,
+                    selectedColors: item.selectedColors
                 })),
                 total: newOrder.total,
                 status: newOrder.status,
@@ -439,12 +443,17 @@ export default function Checkout() {
 
                             <div className="space-y-4 mb-6 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
                                 {items.map(item => (
-                                    <div key={item.id} className="flex gap-4 py-2 border-b border-gray-50 last:border-0">
+                                    <div key={item.cartId} className="flex gap-4 py-2 border-b border-gray-50 last:border-0">
                                         <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                                             <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                         </div>
                                         <div className="flex-grow">
                                             <h4 className="font-medium text-gray-800 text-sm line-clamp-1">{item.name}</h4>
+                                            {item.selectedColors && item.selectedColors.length > 0 && (
+                                                <p className="text-xs text-pink-500 font-medium mt-0.5">
+                                                    Cores: {item.selectedColors.join(' e ')}
+                                                </p>
+                                            )}
                                             <div className="flex justify-between items-center mt-1">
                                                 <span className="text-xs text-gray-500">Qtd: {item.quantity}</span>
                                                 <span className="font-bold text-pink-500">

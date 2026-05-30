@@ -72,7 +72,7 @@ export function CartSidebar() {
                                 items.map(item => (
                                     <motion.div
                                         layout
-                                        key={item.id}
+                                        key={item.cartId}
                                         className="flex gap-4 bg-white p-4 rounded-2xl border border-pink-50 shadow-sm"
                                     >
                                         <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
@@ -81,28 +81,33 @@ export function CartSidebar() {
                                         <div className="flex-grow flex flex-col justify-between">
                                             <div>
                                                 <h4 className="font-bold text-gray-800 line-clamp-1">{item.name}</h4>
-                                                <p className="text-pink-500 font-bold text-sm">
+                                                {item.selectedColors && item.selectedColors.length > 0 && (
+                                                    <p className="text-xs text-pink-500 font-medium mt-0.5">
+                                                        Cores: {item.selectedColors.join(' e ')}
+                                                    </p>
+                                                )}
+                                                <p className="text-pink-500 font-bold text-sm mt-1">
                                                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price)}
                                                 </p>
                                             </div>
                                             <div className="flex items-center justify-between mt-2">
                                                 <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-1">
                                                     <button
-                                                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                        onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
                                                         className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm text-gray-600 hover:text-pink-500"
                                                     >
                                                         <Minus size={12} />
                                                     </button>
                                                     <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
                                                     <button
-                                                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                        onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
                                                         className="w-6 h-6 flex items-center justify-center bg-white rounded shadow-sm text-gray-600 hover:text-pink-500"
                                                     >
                                                         <Plus size={12} />
                                                     </button>
                                                 </div>
                                                 <button
-                                                    onClick={() => removeFromCart(item.id)}
+                                                    onClick={() => removeFromCart(item.cartId)}
                                                     className="text-gray-400 hover:text-red-500 transition-colors p-1"
                                                 >
                                                     <Trash2 size={16} />

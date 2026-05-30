@@ -12,6 +12,7 @@ interface OrderItem {
     quantity: number;
     price: number;
     image: string;
+    selectedColors?: string[];
 }
 
 interface Order {
@@ -412,6 +413,11 @@ export default function Profile() {
                                                                 <img src={item.image} alt={item.name} className="w-12 h-12 object-cover rounded-lg" />
                                                                 <div>
                                                                     <p className="text-sm font-medium text-gray-700 line-clamp-1">{item.name}</p>
+                                                                    {item.selectedColors && item.selectedColors.length > 0 && (
+                                                                        <p className="text-[10px] text-pink-500 font-medium">
+                                                                            Cores: {item.selectedColors.join(' e ')}
+                                                                        </p>
+                                                                    )}
                                                                     <p className="text-xs text-gray-400">{item.quantity}x • {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.price)}</p>
                                                                 </div>
                                                             </div>

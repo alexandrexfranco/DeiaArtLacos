@@ -43,7 +43,34 @@ export default function ProductDetails() {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
     const [isGalleryOpen, setIsGalleryOpen] = useState(false);
     const [isStickyVisible, setIsStickyVisible] = useState(false);
+    const [selectedColors, setSelectedColors] = useState<string[]>([]);
     const mainButtonRef = useRef<HTMLDivElement>(null);
+
+    const colorOptions = product?.colors 
+        ? product.colors.split(',').map((c: string) => c.trim()).filter(Boolean) 
+        : [];
+
+    const handleColorClick = (color: string) => {
+        const isSelected = selectedColors.includes(color);
+        
+        let maxAllowed = 1;
+        if (product && product.sale_type === 'Parzinho') maxAllowed = 2;
+        if (product && product.sale_type === 'Kit') maxAllowed = 100; // unlimited
+
+        if (isSelected) {
+            setSelectedColors(prev => prev.filter(c => c !== color));
+        } else {
+            if (maxAllowed === 1) {
+                setSelectedColors([color]);
+            } else {
+                if (selectedColors.length >= maxAllowed) {
+                    toast.warning(`Você pode selecionar no máximo ${maxAllowed} cores para este tipo de produto.`);
+                    return;
+                }
+                setSelectedColors(prev => [...prev, color]);
+            }
+        }
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -85,8 +112,11 @@ export default function ProductDetails() {
     }
 
     const handleAddToCart = () => {
-        addToCart(product);
-        toast.success(`${product.name} adicionado ao carrinho!`);
+        if (colorOptions.length > 0 && selectedColors.length === 0) {
+            toast.warning('Por favor, selecione pelo menos uma cor!');
+            return;
+        }
+        addToCart(product, selectedColors);
     };
 
     return (
@@ -279,6 +309,54 @@ export default function ProductDetails() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Seletor de Cores */}
+                        {colorOptions.length > 0 && (
+                            <div className="space-y-3 bg-white/50 backdrop-blur-sm border border-pink-100/50 p-6 rounded-3xl shadow-soft">
+                                <div className="flex justify-between items-center">
+                                    <h4 className="font-bold text-gray-800 flex items-center gap-2">
+                                        <Sparkles size={16} className="text-pink-500" />
+                                        {product.sale_type === 'Parzinho' ? 'Escolha até 2 Cores' : product.sale_type === 'Kit' ? 'Escolha as Cores' : 'Escolha a Cor'}
+                                    </h4>
+                                    {selectedColors.length > 0 && (
+                                        <button 
+                                            onClick={() => setSelectedColors([])}
+                                            className="text-xs text-pink-500 hover:underline cursor-pointer font-medium"
+                                        >
+                                            Limpar Seleção
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {colorOptions.map(color => {
+                                        const isSelected = selectedColors.includes(color);
+                                        return (
+                                            <button
+                                                key={color}
+                                                type="button"
+                                                onClick={() => handleColorClick(color)}
+                                                className={`px-4 py-2 rounded-2xl text-sm font-bold border-2 transition-all flex items-center gap-1.5 cursor-pointer ${
+                                                    isSelected 
+                                                    ? 'bg-pink-50 border-pink-500 text-pink-500 shadow-md shadow-pink-50' 
+                                                    : 'bg-white border-gray-200 text-gray-600 hover:border-pink-200'
+                                                }`}
+                                            >
+                                                {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-pink-500"></span>}
+                                                {color}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <p className="text-[10px] text-gray-400 italic">
+                                    {product.sale_type === 'Parzinho' 
+                                        ? '* Para parzinhos, você pode escolher até 2 cores diferentes ou selecionar apenas 1 cor para receber o par na mesma cor.'
+                                        : product.sale_type === 'Kit' 
+                                            ? '* Para kits, escolha as cores que deseja.' 
+                                            : '* Escolha 1 cor para o seu acessório.'
+                                    }
+                                </p>
+                            </div>
+                        )}
 
                         {/* Actions */}
                         <div ref={mainButtonRef} className="flex flex-col sm:flex-row gap-4">
